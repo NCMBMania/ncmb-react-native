@@ -1,0 +1,17 @@
+{
+  "name": "ncmb-react-native",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/runtime": "^7.5.4"
+  },
+  "dependencies": {
+    "jssha": "^2.3.1"
+  }
+}
