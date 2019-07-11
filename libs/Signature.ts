@@ -17,7 +17,7 @@ export default class Signature {
     this.ncmb = ncmb;
   }
   
-  generate(method :string, path :string, timestamp :date, queries: any = {}) :string{
+  generate(method :string, path :string, timestamp :date = new Date(), queries: any = {}) :string{
     const signatureString = this.generateSignatureString(timestamp, queries);
     const ary :string[] = [];
     ary.push(method);
@@ -37,9 +37,13 @@ export default class Signature {
     hash[this.ncmb.signatureVersionName] = this.ncmb.signatureVersionValue;
     hash[this.ncmb.timestampKeyName] = timestamp.toISOString();
     hash[this.ncmb.applicationKeyName] = this.ncmb.applicationKey;
-    if (queries.where) {
-      hash.where = encodeURIComponent(JSON.stringify(queries.where));
-    }
+    Object.keys(queries).forEach(k => {
+      if (typeof queries[k] === 'object') {
+        hash[k] = encodeURIComponent(JSON.stringify(queries[k]));
+      } else {
+        hash[k] = encodeURIComponent(queries[k]);
+      }
+    });
     return Object.keys(hash).sort().map(k => `${k}=${hash[k]}`).join('&');
   }
 }
