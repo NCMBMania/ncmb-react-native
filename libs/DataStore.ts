@@ -90,7 +90,7 @@ export default (ncmb :NCMB, name: string) => {
     
     static async fetch(): DataStore {
       limit = 1;
-      return this.fetchAll()[0];
+      return (await this.fetchAll())[0];
     }
     
     static async fetchAll(): [DataStore] {
@@ -137,6 +137,7 @@ export default (ncmb :NCMB, name: string) => {
     toJSON(): object {
       const json: object = {};
       Object.keys(this.fields).forEach(key => {
+        if (['objectId', 'updateDate', 'createDate'].indexOf(key) > -1) return;
         if (!isNaN(this.fields[key])) {
           // number
           json[key] = this.fields[key];
@@ -176,7 +177,8 @@ export default (ncmb :NCMB, name: string) => {
       const r = ncmb.Request();
       r.body = this.toJSON();
       try {
-        const response: Respose = await r.post(this.path());
+        const method = this.fields.objectId ? 'put' : 'post';
+        const response: Respose = await r[method](this.path());
         const json: Object = await response.json();
         if (json.code) {
           // エラー

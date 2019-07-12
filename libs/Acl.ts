@@ -31,7 +31,7 @@ export default class Acl {
     return this.set(role.get('roleName'), 'read', bol);
   }
   
-  setRoleWriteAccess(): Acl {
+  setRoleWriteAccess(role: Role, bol: boolean): Acl {
     return this.set(role.get('roleName'), 'write', bol);
   }
   

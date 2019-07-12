@@ -52,6 +52,15 @@ export default class Request {
     const s: Signature = this.ncmb.Signature();
     const method = 'POST';
     this.date = new Date();
+    console.log(this.body);
+    signature = s.generate(method, path, this.date);
+    return this.exec(method, this.url(path), this.body);
+  }
+
+  async put(path: string): Response {
+    const s: Signature = this.ncmb.Signature();
+    const method = 'PUT';
+    this.date = new Date();
     signature = s.generate(method, path, this.date);
     return this.exec(method, this.url(path), this.body);
   }

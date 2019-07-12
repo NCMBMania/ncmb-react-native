@@ -36,3 +36,15 @@ try {
 }
 ```
 
+## ロールの作成
+
+```js
+let role = await ncmb.Role.equalTo('roleName', 'Admin').fetch();
+if (!role) {
+  role = new ncmb.Role();
+  await role
+    .set('roleName', 'Admin')
+    .addUser(user)
+    .save();
+}
+```
