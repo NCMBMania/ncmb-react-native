@@ -4,6 +4,7 @@ import Request from './libs/Request.ts';
 import User from './libs/User.ts';
 import Acl from './libs/Acl.ts';
 import Role from './libs/Role.ts';
+import File from './libs/File.ts';
 
 export default class NCMB {
   public applicationKey :string;
@@ -18,6 +19,8 @@ export default class NCMB {
   public timestampKeyName :string;
   public sessionToken: string;
   public currentUser: User;
+  public storage: AsyncStorage;
+  
   constructor(applicationKey :string, clientKey :string): void {
     this.applicationKey = applicationKey;
     this.clientKey = clientKey;
@@ -30,9 +33,11 @@ export default class NCMB {
     this.signatureVersionName = 'SignatureVersion';
     this.signatureVersionValue = '2';
     this.timestampKeyName = 'X-NCMB-Timestamp';
+    this.currentUser = null;
     this.User = User(this);
     this.Role = Role(this);
     this.Acl = Acl;
+    this.File = File(this);
   }
   
   DataStore(name :string) :DataStore {

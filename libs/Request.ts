@@ -15,11 +15,14 @@ export default class Request {
     this.ncmb = ncmb;
   }
   
-  async exec(method: string, url: string, bodies: any = null): Response {
+  async exec(method: string, url: string, bodies: any = null, file: any = null): Response {
     const body = bodies ? JSON.stringify(bodies) : null;
     const headers = this.headers();
     if (body) {
       return await fetch(url, { method, headers, body });
+    } else if (file) {
+      headers['Content-Type'] = 'multipart/form-data';
+      return await fetch(url, { method, headers, body: file });
     } else {
       return await fetch(url, { method, headers });
     }
@@ -48,13 +51,12 @@ export default class Request {
     return `${url}?${query}`;
   }
   
-  async post(path: string): Response {
+  async post(path: string, file: any = null): Response {
     const s: Signature = this.ncmb.Signature();
     const method = 'POST';
     this.date = new Date();
-    console.log(this.body);
     signature = s.generate(method, path, this.date);
-    return this.exec(method, this.url(path), this.body);
+    return this.exec(method, this.url(path), this.body, file);
   }
 
   async put(path: string): Response {

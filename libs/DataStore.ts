@@ -15,6 +15,13 @@ export default (ncmb :NCMB, name: string) => {
       return this;
     }
     
+    sets(json: Object) :DataStore {
+      Object.keys(json).forEach(key => {
+        this.set(key, json[key]);
+      });
+      return this;
+    }
+    
     get(name :string): any {
       return this.fields[name];
     }
@@ -141,6 +148,11 @@ export default (ncmb :NCMB, name: string) => {
         if (!isNaN(this.fields[key])) {
           // number
           json[key] = this.fields[key];
+          return;
+        }
+        if (this.fields[key] === null) {
+          json[key] = null;
+          return;
         }
         switch (this.fields[key].constructor.name) {
         case 'DataStore':
@@ -195,7 +207,7 @@ export default (ncmb :NCMB, name: string) => {
     
     path() :string {
       let basePath = '';
-      if (['users', 'roles'].indexOf(name) > -1) {
+      if (['users', 'roles', 'files'].indexOf(name) > -1) {
         basePath = `/${ncmb.version}/${name}`;
       } else {
         basePath = `/${ncmb.version}/classes/${name}`;

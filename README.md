@@ -1,5 +1,7 @@
 # React Native SDK for NCMB（ニフクラ mobile backend）
 
+ニフクラ mobile backendをReact Nativeから操作するためのSDKです。詳細な使い方は[ブログ](https://blog.mbaas.nifcloud.com/archive/category/ReactNativeSDK)でもご覧いただけます。
+
 ## インストール
 
 ```

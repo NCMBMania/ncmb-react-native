@@ -4,6 +4,13 @@ export default class Acl {
     this.fields = {};
   }
   
+  static default() {
+    const acl = new Acl();
+    return acl
+      .setPublicReadAccess(true)
+      .setPublicWriteAccess(true);
+  }
+  
   set(target: string, action: string, bol: boolean): Acl {
     if (!this.fields[target])
       this.fields[target] = {};
