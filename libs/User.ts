@@ -1,4 +1,5 @@
 import DataStore from './DataStore.ts';
+import uuid from 'react-native-uuid';
 
 interface dataFormat {
   __type: string,
@@ -51,19 +52,33 @@ export default (ncmb :NCMB) => {
       }
     }
     
+    static async loginAsAnonymous(): User {
+      const r = ncmb.Request();
+      r.body = {
+        authData: {
+          anonymous: {
+            id: uuid.v4()
+          }
+        }
+      };
+      try {
+        const response: Respose = await r.post(this.path());
+        const json: Object = await response.json();
+        return await this.setUser(json);
+      } catch (e) {
+        throw e;
+      }
+    }
+    
     static async currentUser(): User {
       if (ncmb.currentUser) return ncmb.currentUser;
+      if (!ncmb.storage) return null;
       const string: string = await ncmb.storage.getItem('currentUser');
       if (string === null) {
         return null;
       }
       const json: Object = JSON.parse(string);
-      ncmb.sessionToken = json.sessionToken;
-      delete json.sessionToken;
-      const user: User = new ncmb.User();
-      user.sets(json)
-      ncmb.currentUser = user.sets(json);
-      return ncmb.currentUser;
+      return await this.setUser(json);
     }
     
     static async login(userName: string, password: string): User {
@@ -72,20 +87,26 @@ export default (ncmb :NCMB) => {
       try {
         const response: Respose = await r.get(`/${ncmb.version}/login`, query);
         const json: Object = await response.json();
-        if (json.code) {
-          // エラー
-          throw new Error(`${json.code}: ${json.error}`);
-        }
-        ncmb.sessionToken = json.sessionToken;
-        await ncmb.storage.setItem('currentUser', JSON.stringify(json));
-        delete json.sessionToken;
-        const user = new ncmb.User();
-        user.sets(json)
-        ncmb.currentUser = user;
-        return user;
+        return await this.setUser(json);
       } catch (e) {
         throw e;
       }
+    }
+    
+    static async setUser(json) {
+      if (json.code) {
+        // エラー
+        throw new Error(`${json.code}: ${json.error}`);
+      }
+      ncmb.sessionToken = json.sessionToken;
+      if (ncmb.storage) {
+        await ncmb.storage.setItem('currentUser', JSON.stringify(json));
+      }
+      delete json.sessionToken;
+      const user = new ncmb.User();
+      user.sets(json)
+      ncmb.currentUser = user;
+      return user;
     }
     
     static async logout():void {
