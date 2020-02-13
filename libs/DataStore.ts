@@ -3,6 +3,7 @@ export default (ncmb :NCMB, name: string) => {
   let limit: number = 10;
   let offset: number = 0;
   let order: string = 'createDate';
+  let include: string = '';
   
   class DataStore {
     constructor() {
@@ -27,8 +28,7 @@ export default (ncmb :NCMB, name: string) => {
     }
     
     static equalTo(name: string, value: any): DataStore {
-      where[name] = value;
-      return this;
+      return this.setOperand(name, value);
     }
     
     static notEqualTo(name: string, value: any): DataStore {
@@ -71,8 +71,23 @@ export default (ncmb :NCMB, name: string) => {
     static setOperand(name: string, value: any, operand): DataStore {
       let condition = where[name];
       if (!condition) condition = {};
-      condition[operand] = value;
-      where[name] = condition;
+      if (value) {
+        switch (value.constructor.name) {
+        case 'DataStore':
+        case 'User':
+          value = {
+            '__type': 'Pointer',
+            'className': value.className,
+            'objectId': value.get('objectId')
+          }
+        }
+      }
+      if (!operand) {
+        where[name] = value;
+      } else {
+        condition[operand] = value;
+        where[name] = condition;
+      }
       return this;
     }
     
@@ -95,6 +110,11 @@ export default (ncmb :NCMB, name: string) => {
       return this;
     }
     
+    static include(name: String): DataStore {
+      include = name;
+      return this;
+    }
+    
     static async fetch(): DataStore {
       limit = 1;
       return (await this.fetchAll())[0];
@@ -103,7 +123,7 @@ export default (ncmb :NCMB, name: string) => {
     static async fetchAll(): [DataStore] {
       const r = ncmb.Request();
       try {
-        const response: Respose = await r.get(this.path(), {where, offset, limit, order});
+        const response: Respose = await r.get(this.path(), {where, offset, limit, order, include});
         const json: Object = await response.json();
         if (json.code) {
           // エラー
@@ -113,7 +133,16 @@ export default (ncmb :NCMB, name: string) => {
         for (let params of json.results) {
           const obj: DataStore = new this;
           Object.keys(params).forEach(key => {
-            obj.set(key, params[key]);
+            if (include && key === include) {
+              const Obj = ncmb.DataStore(params[key].className);
+              const child = new Obj;
+              delete params[key].className;
+              delete params[key.__type];
+              child.sets(params[key]);
+              obj.set(key, child);
+            } else {
+              obj.set(key, params[key]);
+            }
           });
           ary.push(obj);
         }
@@ -156,6 +185,7 @@ export default (ncmb :NCMB, name: string) => {
         }
         switch (this.fields[key].constructor.name) {
         case 'DataStore':
+        case 'User':
           // Pointer
           const obj: DataStore = this.fields[key];
           json[key] = {
