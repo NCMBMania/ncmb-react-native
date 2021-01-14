@@ -1,4 +1,3 @@
-
 interface Header {
   "X-NCMB-Application-Key": string,
   "X-NCMB-Timestamp": string,

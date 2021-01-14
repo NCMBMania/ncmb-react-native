@@ -1,19 +1,52 @@
 {
-  "name": "ncmb-react-native",
-  "version": "0.0.7",
-  "description": "",
-  "main": "index.ts",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "_from": "ncmb-react-native@0.0.7",
+  "_id": "ncmb-react-native@0.0.7",
+  "_inBundle": false,
+  "_integrity": "sha512-qzHcp/HQDCeCSet2Z8wPKxpcSXhSiOvBcT2Io8tasaqQnaUwNyzo51wwHxeiBWW71BYPWbvcXuP2G4JWnPnv9A==",
+  "_location": "/ncmb-react-native",
+  "_phantomChildren": {
+    "randombytes": "2.1.0"
   },
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "ncmb-react-native@0.0.7",
+    "name": "ncmb-react-native",
+    "escapedName": "ncmb-react-native",
+    "rawSpec": "0.0.7",
+    "saveSpec": null,
+    "fetchSpec": "0.0.7"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/ncmb-react-native/-/ncmb-react-native-0.0.7.tgz",
+  "_shasum": "7a572350116961a82b4c4116404029f5695fce6e",
+  "_spec": "ncmb-react-native@0.0.7",
+  "_where": "/Volumes/SSD/Code/NCMB/rn-ncmb-kitchen-sink",
   "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "@babel/runtime": "^7.5.4"
-  },
+  "bundleDependencies": false,
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^1.13.2",
     "buffer": "^5.4.3",
     "jssha": "^2.3.1",
     "react-native-uuid": "^1.4.9"
-  }
+  },
+  "deprecated": false,
+  "description": "ニフクラ mobile backendをReact Nativeから操作するためのSDKです。詳細な使い方は[ブログ](https://blog.mbaas.nifcloud.com/archive/category/ReactNativeSDK)でもご覧いただけます。",
+  "devDependencies": {
+    "@babel/runtime": "^7.5.4",
+    "chai": "^4.2.0",
+    "mocha": "^8.2.1",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.1.3"
+  },
+  "license": "ISC",
+  "main": "index.ts",
+  "name": "ncmb-react-native",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "0.0.7"
 }

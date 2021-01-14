@@ -1,44 +1,44 @@
-export default class Acl {
+class NCMBAcl {
   private fields: object;
   constructor() {
     this.fields = {};
   }
   
   static default() {
-    const acl = new Acl();
+    const acl = new NCMBAcl();
     return acl
       .setPublicReadAccess(true)
       .setPublicWriteAccess(true);
   }
   
-  set(target: string, action: string, bol: boolean): Acl {
+  set(target: string, action: string, bol: boolean): NCMBAcl {
     if (!this.fields[target])
       this.fields[target] = {};
     this.fields[target][action] = bol;
     return this;
   }
   
-  setPublicReadAccess(bol: boolean): Acl {
+  setPublicReadAccess(bol: boolean): NCMBAcl {
     return this.set('*', 'read', bol);
   }
   
-  setPublicWriteAccess(bol: boolean): Acl {
+  setPublicWriteAccess(bol: boolean): NCMBAcl {
     return this.set('*', 'write', bol);
   }
   
-  setUserReadAccess(user: User, bol: boolean): Acl {
+  setUserReadAccess(user: User, bol: boolean): NCMBAcl {
     return this.set(user.get('objectId'), 'read', bol);
   }
   
-  setUserWriteAccess(user: User, bol: boolean): Acl {
+  setUserWriteAccess(user: User, bol: boolean): NCMBAcl {
     return this.set(user.get('objectId'), 'write', bol);
   }
   
-  setRoleReadAccess(role: Role, bol: boolean): Acl {
+  setRoleReadAccess(role: Role, bol: boolean): NCMBAcl {
     return this.set(role.get('roleName'), 'read', bol);
   }
   
-  setRoleWriteAccess(role: Role, bol: boolean): Acl {
+  setRoleWriteAccess(role: Role, bol: boolean): NCMBAcl {
     return this.set(role.get('roleName'), 'write', bol);
   }
   
@@ -53,3 +53,5 @@ export default class Acl {
     return json;
   }
 }
+
+export default NCMBAcl;

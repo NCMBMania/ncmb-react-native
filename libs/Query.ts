@@ -1,6 +1,6 @@
-/// <reference path="./Request" />
+class NCMBQuery {
+  static ncmb: NCMB;
   
-class DataStore {
   private where = {};
   private limit: number = 10;
   private offset: number = 0;
@@ -8,68 +8,51 @@ class DataStore {
   private include: string = '';
 
   constructor(name: string) {
-    this.fields = {};
     this.className = name;
   }
   
-  set(name :string, value :any) :DataStore {
-    this.fields[name] = value;
-    return this;
-  }
-  
-  sets(json: Object) :DataStore {
-    Object.keys(json).forEach(key => {
-      this.set(key, json[key]);
-    });
-    return this;
-  }
-  
-  get(name :string): any {
-    return this.fields[name];
-  }
-  
-  static equalTo(name: string, value: any): DataStore {
+  static equalTo(name: string, value: any): NCMBQuery {
     return this.setOperand(name, value);
   }
   
-  static notEqualTo(name: string, value: any): DataStore {
+  static notEqualTo(name: string, value: any): NCMBQuery {
     return this.setOperand(name, value, '$ne');
   }
-  static greaterThan(name: string, value: any): DataStore {
+  static greaterThan(name: string, value: any): NCMBQuery {
     return this.setOperand(name, value, '$gt');
   }
-  static greaterThanOrEqualTo(name: string, value: any): DataStore {
+  static greaterThanOrEqualTo(name: string, value: any): NCMBQuery {
     return this.setOperand(name, value, '$gte');
   }
-  static lessThan(name: string, value: any): DataStore {
+  static lessThan(name: string, value: any): NCMBQuery {
     return this.setOperand(name, value, '$lt');
   }
-  static lessThanOrEqualTo(name: string, value: any): DataStore {
+  static lessThanOrEqualTo(name: string, value: any): NCMBQuery {
     return this.setOperand(name, value, '$lte');
   }
-  static in(name: string, value: any): DataStore {
+  static in(name: string, value: any): NCMBQuery {
     return this.setOperand(name, value, '$in');
   }
-  static notIn(name: string, value: any): DataStore {
+  static notIn(name: string, value: any): NCMBQuery {
     return this.setOperand(name, value, '$nin');
   }
-  static exists(name: string): DataStore {
+  static exists(name: string): NCMBQuery {
     return this.setOperand(name, true, '$exists');
   }
-  static notExists(name: string): DataStore {
+  static notExists(name: string): NCMBQuery {
     return this.setOperand(name, false, '$exists');
   }
-  static inArray(name: string, value: any): DataStore {
+  static inArray(name: string, value: any): NCMBQuery {
     return this.setOperand(name, value, '$inArray');
   }
-  static notInArray(name: string, value: any): DataStore {
+  static notInArray(name: string, value: any): NCMBQuery {
     return this.setOperand(name, value, '$ninArray');
   }
-  static allInArray(name: string, value: any): DataStore {
+  static allInArray(name: string, value: any): NCMBQuery {
     return this.setOperand(name, value, '$all');
   }
   
-  static setOperand(name: string, value: any, operand): DataStore {
+  static setOperand(name: string, value: any, operand): NCMBQuery {
     let condition = where[name];
     if (!condition) condition = {};
     if (value) {
@@ -92,17 +75,17 @@ class DataStore {
     return this;
   }
   
-  static limit(value: number): DataStore {
+  static limit(value: number): NCMBQuery {
     limit = value;
     return this;
   }
   
-  static skip(value: number): DataStore {
+  static skip(value: number): NCMBQuery {
     offset = value;
     return this;
   }
   
-  static order(name: string, desc: boolean = false): DataStore {
+  static order(name: string, desc: boolean = false): NCMBQuery {
     if (desc) {
       order = `-${name}`;
     } else {
@@ -111,17 +94,17 @@ class DataStore {
     return this;
   }
   
-  static include(name: String): DataStore {
+  static include(name: String): NCMBQuery {
     include = name;
     return this;
   }
   
-  static async fetch(): DataStore {
+  static async fetch(): NCMBQuery {
     limit = 1;
     return (await this.fetchAll())[0];
   }
   
-  static async fetchAll(): [DataStore] {
+  static async fetchAll(): [NCMBObject] {
     const r = ncmb.Request();
     try {
       const response: Respose = await r.get(this.path(), {where, offset, limit, order, include});
@@ -132,7 +115,7 @@ class DataStore {
       }
       const ary: [DataStore] = [];
       for (let params of json.results) {
-        const obj: DataStore = new this;
+        const obj: NCMBQuery = new this;
         Object.keys(params).forEach(key => {
           if (include && key === include) {
             const Obj = ncmb.DataStore(params[key].className);
@@ -188,7 +171,7 @@ class DataStore {
       case 'DataStore':
       case 'User':
         // Pointer
-        const obj: DataStore = this.fields[key];
+        const obj: NCMBQuery = this.fields[key];
         json[key] = {
           '__type': 'Pointer',
           'className': obj.className,
@@ -216,7 +199,7 @@ class DataStore {
     return json;
   }
   
-  async save() :boolean {
+  async save() : Promise<boolean> {
     const r = ncmb.Request();
     r.body = this.toJSON();
     try {
@@ -259,5 +242,4 @@ class DataStore {
   }
 }
 
-export default DataStore;
-
+export default NCMBQuery;

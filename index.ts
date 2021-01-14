@@ -1,12 +1,14 @@
-import DataStore from './libs/DataStore.ts';
-import Signature from './libs/Signature.ts';
-import Request from './libs/Request.ts';
-import User from './libs/User.ts';
-import Acl from './libs/Acl.ts';
-import Role from './libs/Role.ts';
-import File from './libs/File.ts';
+import NCMBObject from './libs/Object';
+import NCMBQuery from './libs/Query';
+import Signature from './libs/Signature';
+import Request from './libs/Request';
+import NCMBUser from './libs/User';
+import NCMBRole from './libs/Role';
+import NCMBFile from './libs/File';
+import NCMBAcl from './libs/Acl';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default class NCMB {
+class NCMB {
   public applicationKey :string;
   public clientKey :string;
   public fqdn :string;
@@ -14,14 +16,15 @@ export default class NCMB {
   public applicationKeyName :string;
   public signatureMethodName :string;
   public signatureMethodValue :string;
+  public signatureHeaderName :string;
   public signatureVersionName :string;
   public signatureVersionValue :string;
   public timestampKeyName :string;
-  public sessionToken: string;
-  public currentUser: User;
-  public storage: AsyncStorage;
+  public sessionToken: string | null;
+  public currentUser: NCMBUser | null;
+  public storage: typeof AsyncStorage;
   
-  constructor(applicationKey :string, clientKey :string): void {
+  constructor(applicationKey :string, clientKey :string) {
     this.applicationKey = applicationKey;
     this.clientKey = clientKey;
     this.fqdn = 'mbaas.api.nifcloud.com';
@@ -33,15 +36,14 @@ export default class NCMB {
     this.signatureVersionName = 'SignatureVersion';
     this.signatureVersionValue = '2';
     this.timestampKeyName = 'X-NCMB-Timestamp';
+    this.sessionToken = null;
     this.currentUser = null;
-    this.User = User(this);
-    this.Role = Role(this);
-    this.Acl = Acl;
-    this.File = File(this);
-  }
-  
-  DataStore(name :string) :DataStore {
-    return DataStore(this, name);
+    this.storage = AsyncStorage;
+    NCMBUser.ncmb = this;
+    NCMBObject.ncmb = this;
+    NCMBQuery.ncmb = this;
+    NCMBFile.ncmb = this;
+    NCMBRole.ncmb = this;
   }
   
   Request(method: string, path: string) {
@@ -53,3 +55,5 @@ export default class NCMB {
   }
 }
 
+export default NCMB;
+export { NCMBUser, NCMBObject, NCMBQuery, NCMBFile, NCMBAcl, NCMBRole };
