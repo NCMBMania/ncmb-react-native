@@ -1,5 +1,5 @@
 import NCMBObject from './Object.ts';
-import uuid from 'uuid/v4';
+import { v4 as uuidv4 } from 'uuid';
 import NCMB from 'ncmb-react-native';
 
 interface dataFormat {
@@ -58,7 +58,7 @@ class NCMBUser extends NCMBObject {
     r.body = {
       authData: {
         anonymous: {
-          id: uuid()
+          id: uuidv4()
         }
       }
     };

@@ -1,7 +1,7 @@
 import NCMBObject from './libs/Object';
 import NCMBQuery from './libs/Query';
-import Signature from './libs/Signature';
-import Request from './libs/Request';
+import NCMBSignature from './libs/Signature';
+import NCMBRequest from './libs/Request';
 import NCMBUser from './libs/User';
 import NCMBRole from './libs/Role';
 import NCMBFile from './libs/File';
@@ -11,47 +11,31 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 class NCMB {
   public applicationKey :string;
   public clientKey :string;
-  public fqdn :string;
-  public version :string;
-  public applicationKeyName :string;
-  public signatureMethodName :string;
-  public signatureMethodValue :string;
-  public signatureHeaderName :string;
-  public signatureVersionName :string;
-  public signatureVersionValue :string;
-  public timestampKeyName :string;
-  public sessionToken: string | null;
-  public currentUser: NCMBUser | null;
+  static fqdn = 'mbaas.api.nifcloud.com';
+  static version = '2013-09-01';
+  static applicationKeyName = 'X-NCMB-Application-Key';
+  static signatureMethodName = 'SignatureMethod';
+  static signatureMethodValue = 'HmacSHA256';
+  static signatureHeaderName = 'X-NCMB-Signature';
+  static signatureVersionName = 'SignatureVersion';
+  static signatureVersionValue = '2';
+  static timestampKeyName = 'X-NCMB-Timestamp';
+  static sessionHeaderKeyName = 'X-NCMB-Apps-Session-Token';
+  public sessionToken: string | null = null;
+  public currentUser: NCMBUser | null = null;
   public storage: typeof AsyncStorage;
   
   constructor(applicationKey :string, clientKey :string) {
     this.applicationKey = applicationKey;
     this.clientKey = clientKey;
-    this.fqdn = 'mbaas.api.nifcloud.com';
-    this.version = '2013-09-01';
-    this.applicationKeyName = 'X-NCMB-Application-Key';
-    this.signatureHeaderName = 'X-NCMB-Signature';
-    this.signatureMethodName = 'SignatureMethod';
-    this.signatureMethodValue = 'HmacSHA256';
-    this.signatureVersionName = 'SignatureVersion';
-    this.signatureVersionValue = '2';
-    this.timestampKeyName = 'X-NCMB-Timestamp';
-    this.sessionToken = null;
-    this.currentUser = null;
     this.storage = AsyncStorage;
     NCMBUser.ncmb = this;
     NCMBObject.ncmb = this;
     NCMBQuery.ncmb = this;
     NCMBFile.ncmb = this;
     NCMBRole.ncmb = this;
-  }
-  
-  Request(method: string, path: string) {
-    return new Request(this);
-  }
-  
-  Signature() {
-    return new Signature(this);
+    NCMBRequest.ncmb = this;
+    NCMBSignature.ncmb = this;
   }
 }
 

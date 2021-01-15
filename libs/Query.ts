@@ -1,59 +1,65 @@
+import NCMB from '../';
+import NCMBObject from './Object';
+import NCMBRequest from './Request';
+
 class NCMBQuery {
   static ncmb: NCMB;
   
-  private where = {};
-  private limit: number = 10;
-  private offset: number = 0;
-  private order: string = 'createDate';
-  private include: string = '';
+  private _where: {[key: string]: any} = {};
+  private _limit: number = 10;
+  private _count: string = '';
+  private _offset: number = 0;
+  private _order: string = 'createDate';
+  private _include: string = '';
+  private className: string;
 
   constructor(name: string) {
     this.className = name;
   }
   
-  static equalTo(name: string, value: any): NCMBQuery {
+  equalTo(name: string, value: any): NCMBQuery {
     return this.setOperand(name, value);
   }
   
-  static notEqualTo(name: string, value: any): NCMBQuery {
+  notEqualTo(name: string, value: any): NCMBQuery {
     return this.setOperand(name, value, '$ne');
   }
-  static greaterThan(name: string, value: any): NCMBQuery {
+  greaterThan(name: string, value: any): NCMBQuery {
     return this.setOperand(name, value, '$gt');
   }
-  static greaterThanOrEqualTo(name: string, value: any): NCMBQuery {
+  greaterThanOrEqualTo(name: string, value: any): NCMBQuery {
     return this.setOperand(name, value, '$gte');
   }
-  static lessThan(name: string, value: any): NCMBQuery {
+  lessThan(name: string, value: any): NCMBQuery {
     return this.setOperand(name, value, '$lt');
   }
-  static lessThanOrEqualTo(name: string, value: any): NCMBQuery {
+  lessThanOrEqualTo(name: string, value: any): NCMBQuery {
     return this.setOperand(name, value, '$lte');
   }
-  static in(name: string, value: any): NCMBQuery {
+  in(name: string, value: any): NCMBQuery {
     return this.setOperand(name, value, '$in');
   }
-  static notIn(name: string, value: any): NCMBQuery {
+  notIn(name: string, value: any): NCMBQuery {
     return this.setOperand(name, value, '$nin');
   }
-  static exists(name: string): NCMBQuery {
+  exists(name: string): NCMBQuery {
     return this.setOperand(name, true, '$exists');
   }
-  static notExists(name: string): NCMBQuery {
+  notExists(name: string): NCMBQuery {
     return this.setOperand(name, false, '$exists');
   }
-  static inArray(name: string, value: any): NCMBQuery {
+  inArray(name: string, value: any): NCMBQuery {
     return this.setOperand(name, value, '$inArray');
   }
-  static notInArray(name: string, value: any): NCMBQuery {
+  notInArray(name: string, value: any): NCMBQuery {
     return this.setOperand(name, value, '$ninArray');
   }
-  static allInArray(name: string, value: any): NCMBQuery {
+  allInArray(name: string, value: any): NCMBQuery {
     return this.setOperand(name, value, '$all');
   }
   
-  static setOperand(name: string, value: any, operand): NCMBQuery {
-    let condition = where[name];
+  setOperand(name: string, value: any, operand?: string): NCMBQuery {
+    let condition = this._where[name];
     if (!condition) condition = {};
     if (value) {
       switch (value.constructor.name) {
@@ -67,62 +73,83 @@ class NCMBQuery {
       }
     }
     if (!operand) {
-      where[name] = value;
+      this._where[name] = value;
     } else {
       condition[operand] = value;
-      where[name] = condition;
+      this._where[name] = condition;
     }
     return this;
   }
   
-  static limit(value: number): NCMBQuery {
-    limit = value;
+  limit(value: number): NCMBQuery {
+    this._limit = value;
     return this;
   }
   
-  static skip(value: number): NCMBQuery {
-    offset = value;
+  skip(value: number): NCMBQuery {
+    this._offset = value;
     return this;
   }
   
-  static order(name: string, desc: boolean = false): NCMBQuery {
+  order(name: string, desc: boolean = false): NCMBQuery {
     if (desc) {
-      order = `-${name}`;
+      this._order = `-${name}`;
     } else {
-      order = name
+      this._order = name
     }
     return this;
   }
-  
-  static include(name: String): NCMBQuery {
-    include = name;
+  count(): NCMBQuery {
+    this._count = '1';
+    return this;
+  }
+  include(name: string): NCMBQuery {
+    this._include = name;
     return this;
   }
   
-  static async fetch(): NCMBQuery {
-    limit = 1;
+  async fetch(): Promise<NCMBObject> {
+    this._limit = 1;
     return (await this.fetchAll())[0];
   }
   
-  static async fetchAll(): [NCMBObject] {
-    const r = ncmb.Request();
+  async fetchWithCount(): Promise<{count: number, results: NCMBObject[]}> {
+    this._count = '1';
+    const { json, ary } = await this.fetchData();
+    return {count: json.count!, results: ary};
+  }
+
+  async fetchAll(): Promise<NCMBObject[]> {
+    const { ary } = await this.fetchData();
+    return ary;
+  }
+  
+  async fetchData(): Promise<{json: NCMBResponse, ary: NCMBObject[]}> {
+    const r = new NCMBRequest();
     try {
-      const response: Respose = await r.get(this.path(), {where, offset, limit, order, include});
-      const json: Object = await response.json();
+      const response = await r.get(this.path(), {
+        where: this._where,
+        offset: this._offset,
+        limit: this._limit,
+        order: this._order,
+        include: this._include,
+        count: this._count
+      });
+      const json = (await response.json()) as NCMBResponse;
       if (json.code) {
         // エラー
         throw new Error(`${json.code}: ${json.error}`);
       }
-      const ary: [DataStore] = [];
-      for (let params of json.results) {
-        const obj: NCMBQuery = new this;
+      const ary = [] as NCMBObject[];
+      for (let params of json.results!) {
+        const obj = new NCMBObject(this.className);
         Object.keys(params).forEach(key => {
-          if (include && key === include) {
-            const Obj = ncmb.DataStore(params[key].className);
-            const child = new Obj;
-            delete params[key].className;
-            delete params[key.__type];
-            child.sets(params[key]);
+          if (this._include && key === this._include) {
+            const pointer = params[key] as NCMBPointer;
+            const child = new NCMBObject(pointer.className);
+            delete pointer.className;
+            delete params[pointer.__type!];
+            child.sets(pointer);
             obj.set(key, child);
           } else {
             obj.set(key, params[key]);
@@ -130,30 +157,12 @@ class NCMBQuery {
         });
         ary.push(obj);
       }
-      return ary;
+      return {json, ary};
     } catch (e) {
       throw e;
     }
   }
-  
-  async delete() :boolean {
-    const r = ncmb.Request();
-    r.body = this.fields;
-    try {
-      const response: Respose = await r.delete(this.path());
-      const body: string = await response.text();
-      if (body == '') return true;
-      const json: Object = JSON.parse(body);
-      if (json.code) {
-        // エラー
-        throw new Error(`${json.code}: ${json.error}`);
-      }
-      return false;
-    } catch (e) {
-      throw e;
-    }
-  }
-  
+
   toJSON(): object {
     const json: object = {};
     Object.keys(this.fields).forEach(key => {
@@ -198,41 +207,18 @@ class NCMBQuery {
     });
     return json;
   }
-  
-  async save() : Promise<boolean> {
-    const r = ncmb.Request();
-    r.body = this.toJSON();
-    try {
-      const method = this.fields.objectId ? 'put' : 'post';
-      const response: Respose = await r[method](this.path());
-      const json: Object = await response.json();
-      if (json.code) {
-        // エラー
-        throw new Error(`${json.code}: ${json.error}`);
-      }
-      Object.keys(json).forEach(key => {
-        this.set(key, json[key]);
-      })
-      return true;
-    } catch (e) {
-      throw e;
-    }
-  }
-  
+    
   path() :string {
     let basePath = '';
-    if (['users', 'roles', 'files'].indexOf(name) > -1) {
-      basePath = `/${ncmb.version}/${name}`;
+    if (['users', 'roles', 'files'].indexOf(this.className) > -1) {
+      basePath = `/${NCMB.version}/${this.className}`;
     } else {
-      basePath = `/${ncmb.version}/classes/${name}`;
+      basePath = `/${NCMB.version}/classes/${this.className}`;
     }
-    if (this.fields.objectId) {
-      return `${basePath}/${this.fields.objectId}`;
-    } else {
-      return basePath;
-    }
+    return basePath;
   }
   
+  /*
   static path() :string {
     if (['users', 'roles'].indexOf(name) > -1) {
       return `/${ncmb.version}/${name}`;
@@ -240,6 +226,7 @@ class NCMBQuery {
       return `/${ncmb.version}/classes/${name}`;
     }
   }
+  */
 }
 
 export default NCMBQuery;

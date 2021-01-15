@@ -1,44 +1,55 @@
-interface Header {
-  "X-NCMB-Application-Key": string,
-  "X-NCMB-Timestamp": string,
-  "X-NCMB-Signature": string,
-  "X-NCMB-Apps-Session-Token": string,
-  "Content-Type": string
-}
+import NCMB from '..';
+import NCMBSignature from './Signature';
 
-export default class Request {
+const CONTENT_TYPE = 'Content-Type';
+const ContentType = {
+  Json: 'application/json',
+  Multi: 'multipart/form-data'
+} as const;
+
+const HttpMethod = {
+  Get: 'GET',
+  Post: 'POST',
+  Put: 'PUT',
+  Delete: 'DELETE'
+} as const;
+
+class NCMBRequest {
+  static ncmb: NCMB;
   public body: any;
   public query: any;
   public date: Date;
-  constructor(ncmb: ncmb) {
-    this.ncmb = ncmb;
+
+  constructor() {
   }
   
-  async exec(method: string, url: string, bodies: any = null, file: any = null): Response {
+  async exec(method: string, url: string, signature: string, bodies: any = null, file: any = null): Promise<Response> {
     const body = bodies ? JSON.stringify(bodies) : null;
-    const headers = this.headers();
+    const headers = this.headers(signature);
     if (body) {
       return await fetch(url, { method, headers, body });
     } else if (file) {
-      headers['Content-Type'] = 'multipart/form-data';
+      headers.set(CONTENT_TYPE, ContentType.Multi);
       return await fetch(url, { method, headers, body: file });
     } else {
       return await fetch(url, { method, headers });
     }
   }
   
-  headers(): Header{
-    const headers: Header = {};
-    headers[this.ncmb.applicationKeyName] = this.ncmb.applicationKey;
-    headers[this.ncmb.timestampKeyName] = this.date.toISOString();
-    headers[this.ncmb.signatureHeaderName] = signature;
-    headers['Content-Type'] = 'application/json';
-    if (this.ncmb.sessionToken) headers['X-NCMB-Apps-Session-Token'] = this.ncmb.sessionToken;
+  headers(signature: string): Headers {
+    const headers: HeadersInit = new Headers();
+    headers.set(NCMB.applicationKeyName, NCMBRequest.ncmb.applicationKey);
+    headers.set(NCMB.timestampKeyName, this.date.toISOString());
+    headers.set(NCMB.signatureHeaderName, signature);
+    headers.set(CONTENT_TYPE, ContentType.Json);
+    if(NCMBRequest.ncmb.sessionToken) {
+      headers.set(NCMB.sessionHeaderKeyName, NCMBRequest.ncmb.sessionToken);
+    }
     return headers;
   }
   
-  url(path, queries: any = null): String {
-    const url = `https://${this.ncmb.fqdn}${path}`;
+  url(path: string, queries: any = null): string {
+    const url = `https://${NCMB.fqdn}${path}`;
     if (queries == null) return url;
     const query = Object.keys(queries).map(k => {
       if (typeof queries[k] === 'object') {
@@ -50,35 +61,43 @@ export default class Request {
     return `${url}?${query}`;
   }
   
-  async post(path: string, file: any = null): Response {
-    const s: Signature = this.ncmb.Signature();
-    const method = 'POST';
+  async post(path: string, file: any = null): Promise<Response> {
+    const s = new NCMBSignature;
+    const method = HttpMethod.Post;
     this.date = new Date();
-    signature = s.generate(method, path, this.date);
-    return this.exec(method, this.url(path), this.body, file);
+    const signature = s.generate(method, path, this.date);
+    return this.exec(method, this.url(path), signature, this.body, file);
   }
 
-  async put(path: string): Response {
-    const s: Signature = this.ncmb.Signature();
-    const method = 'PUT';
+  async put(path: string): Promise<Response> {
+    const s = new NCMBSignature;
+    const method = HttpMethod.Put;
     this.date = new Date();
-    signature = s.generate(method, path, this.date);
-    return this.exec(method, this.url(path), this.body);
+    const signature = s.generate(method, path, this.date);
+    return this.exec(method, this.url(path), signature, this.body);
   }
 
-  async get(path: string, queries: any): Response {
-    const s: Signature = this.ncmb.Signature();
-    const method = 'GET';
+  async get(path: string, queries: any): Promise<Response> {
+    const s = new NCMBSignature;
+    const method = HttpMethod.Get;
     this.date = new Date();
-    signature = s.generate(method, path, this.date, queries);
-    return this.exec(method, this.url(path, queries));
+    const filteredQuery: {[key: string]: string} = {};
+    for (const key in queries) {
+      if (queries[key] && queries[key] !== '') {
+        filteredQuery[key] = queries[key];
+      }
+    }
+    const signature = s.generate(method, path, this.date, filteredQuery);
+    return this.exec(method, this.url(path, filteredQuery), signature);
   }
   
-  async delete(path: string): Response {
-    const s: Signature = this.ncmb.Signature();
-    const method = 'DELETE';
+  async delete(path: string): Promise<Response> {
+    const s = new NCMBSignature;
+    const method = HttpMethod.Delete;
     this.date = new Date();
-    signature = s.generate(method, path, this.date);
-    return this.exec(method, this.url(path));
+    const signature = s.generate(method, path, this.date);
+    return this.exec(method, this.url(path), signature);
   }
 }
+
+export default NCMBRequest;

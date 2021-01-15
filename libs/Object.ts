@@ -1,22 +1,27 @@
+import NCMB from '../';
+import NCMBRequest from './Request';
+import NCMBUser from './User';
+import NCMBAcl from './Acl';
+
 class NCMBObject {
   static ncmb: NCMB;
 
   private className: string;
+  private fields: JsonObject;
 
-  private fields: object;
   constructor(name: string) {
     this.fields = {};
     this.className = name;
   }
   
-  set(name :string, value :any) :NCMBObject {
+  set(name :string, value :allowType) :NCMBObject {
     this.fields[name] = value;
     return this;
   }
   
-  sets(json: Object) :NCMBObject {
+  sets(json: JsonObject) :NCMBObject {
     Object.keys(json).forEach(key => {
-      this.set(key, json[key]);
+      this.set(key, json[key] as JsonObject);
     });
     return this;
   }
@@ -25,48 +30,46 @@ class NCMBObject {
     return this.fields[name];
   }
   
-  
-  static async fetch(): NCMBObject {
-    limit = 1;
+  /*
+  static async fetch(): Promise<NCMBObject> {
     return (await this.fetchAll())[0];
   }
+  */
   
   async delete() : Promise<boolean> {
-    const r = ncmb.Request();
+    const r = new NCMBRequest;
     r.body = this.fields;
     try {
-      const response: Respose = await r.delete(this.path());
+      const response = await r.delete(this.path());
       const body: string = await response.text();
       if (body == '') return true;
-      const json: Object = JSON.parse(body);
+      const json: NCMBResponse = JSON.parse(body);
       if (json.code) {
         // エラー
         throw new Error(`${json.code}: ${json.error}`);
       }
-      return false;
+      return true;
     } catch (e) {
       throw e;
     }
   }
   
   toJSON(): object {
-    const json: object = {};
+    const json: JsonObject = {};
     Object.keys(this.fields).forEach(key => {
       if (['objectId', 'updateDate', 'createDate'].indexOf(key) > -1) return;
-      if (!isNaN(this.fields[key])) {
-        // number
-        json[key] = this.fields[key];
-        return;
-      }
       if (this.fields[key] === null) {
         json[key] = null;
         return;
       }
-      switch (this.fields[key].constructor.name) {
-      case 'DataStore':
-      case 'User':
+      switch (this.fields[key]!.constructor.name) {
+      case 'Number':
+        json[key] = this.fields[key];
+        break;
+      case 'NCMBObject':
+      case 'NCMBUser':
         // Pointer
-        const obj: DataStore = this.fields[key];
+        const obj = this.fields[key] as NCMBObject;
         json[key] = {
           '__type': 'Pointer',
           'className': obj.className,
@@ -74,18 +77,20 @@ class NCMBObject {
         }
         break;
       case 'Date':
-        const date = this.fields[key];
+        const date = this.fields[key] as Date;
         json[key] = {
           '__type': 'Date',
           'iso': date.toISOString()
         };
         break;
-      case 'Acl':
-        json[key] = this.fields[key].toJSON();
+      case 'NCMBAcl':
+        const acl = this.fields[key] as NCMBAcl;
+        json[key] = acl.toJSON();
         break;
       default:
-        if (typeof this.fields[key].toJSON === 'function') {
-          json[key] = this.fields[key].toJSON();
+        const func: Function | null = this.fields[key]!.toJSON;
+        if (typeof func === 'function') {
+          json[key] = func();
         } else {
           json[key] = this.fields[key];
         }
@@ -95,19 +100,17 @@ class NCMBObject {
   }
   
   async save() : Promise<boolean> {
-    const r = ncmb.Request();
+    const r = new NCMBRequest;
     r.body = this.toJSON();
     try {
       const method = this.fields.objectId ? 'put' : 'post';
-      const response: Respose = await r[method](this.path());
-      const json: Object = await response.json();
+      const response = await r[method](this.path());
+      const json: ResponseError | JsonObject = await response.json();
       if (json.code) {
         // エラー
         throw new Error(`${json.code}: ${json.error}`);
       }
-      Object.keys(json).forEach(key => {
-        this.set(key, json[key]);
-      })
+      this.sets(json as JsonObject);
       return true;
     } catch (e) {
       throw e;
@@ -116,10 +119,10 @@ class NCMBObject {
   
   path() :string {
     let basePath = '';
-    if (['users', 'roles', 'files'].indexOf(name) > -1) {
-      basePath = `/${ncmb.version}/${name}`;
+    if (['users', 'roles', 'files'].indexOf(this.className) > -1) {
+      basePath = `/${NCMB.version}/${this.className}`;
     } else {
-      basePath = `/${ncmb.version}/classes/${name}`;
+      basePath = `/${NCMB.version}/classes/${this.className}`;
     }
     if (this.fields.objectId) {
       return `${basePath}/${this.fields.objectId}`;
@@ -127,14 +130,15 @@ class NCMBObject {
       return basePath;
     }
   }
-  
+  /*
   static path() :string {
-    if (['users', 'roles'].indexOf(name) > -1) {
-      return `/${ncmb.version}/${name}`;
+    if (['users', 'roles'].indexOf() > -1) {
+      return `/${NCMBObject.ncmb.version}/${name}`;
     } else {
-      return `/${ncmb.version}/classes/${name}`;
+      return `/${NCMBObject.ncmb.version}/classes/${name}`;
     }
   }
+  */
 }
 
 export default NCMBObject;
