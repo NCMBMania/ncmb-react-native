@@ -4,7 +4,6 @@ import NCMB, { NCMBObject, NCMBQuery, NCMBUser } from '../index';
 import config from './config.json';
 import { LocalStorage } from 'node-localstorage';
 
-
 describe('User API', () => {
   before('Init', async () => {
     const ncmb = new NCMB(config.applicationKey, config.clientKey);

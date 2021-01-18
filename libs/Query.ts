@@ -278,53 +278,6 @@ class NCMBQuery {
     }
   }
 
-  /*
-  toJSON(): object {
-    const json: object = {};
-    Object.keys(this.fields).forEach(key => {
-      if (['objectId', 'updateDate', 'createDate'].indexOf(key) > -1) return;
-      if (!isNaN(this.fields[key])) {
-        // number
-        json[key] = this.fields[key];
-        return;
-      }
-      if (this.fields[key] === null) {
-        json[key] = null;
-        return;
-      }
-      switch (this.fields[key].constructor.name) {
-      case 'DataStore':
-      case 'User':
-        // Pointer
-        const obj: NCMBQuery = this.fields[key];
-        json[key] = {
-          '__type': 'Pointer',
-          'className': obj.className,
-          'objectId': obj.get('objectId')
-        }
-        break;
-      case 'Date':
-        const date = this.fields[key];
-        json[key] = {
-          '__type': 'Date',
-          'iso': date.toISOString()
-        };
-        break;
-      case 'Acl':
-        json[key] = this.fields[key].toJSON();
-        break;
-      default:
-        if (typeof this.fields[key].toJSON === 'function') {
-          json[key] = this.fields[key].toJSON();
-        } else {
-          json[key] = this.fields[key];
-        }
-      };
-    });
-    return json;
-  }
-  */
-
   path() :string {
     let basePath = '';
     if (['users', 'roles', 'installations', 'files', 'push'].indexOf(this.className) > -1) {
@@ -333,17 +286,7 @@ class NCMBQuery {
       basePath = `/${NCMB.version}/classes/${this.className}`;
     }
     return basePath;
-  }
-  
-  /*
-  static path() :string {
-    if (['users', 'roles'].indexOf(name) > -1) {
-      return `/${ncmb.version}/${name}`;
-    } else {
-      return `/${ncmb.version}/classes/${name}`;
-    }
-  }
-  */
+  }  
 }
 
 export default NCMBQuery;
