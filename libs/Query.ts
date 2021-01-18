@@ -1,4 +1,5 @@
-import NCMB, { NCMBUser, NCMBObject, NCMBRequest, NCMBRole, NCMBFile, NCMBGeoPoint } from '../';
+import NCMB, { NCMBUser, NCMBObject, NCMBRequest, NCMBRole, NCMBFile, NCMBGeoPoint, NCMBPush } from '../';
+import { NCMBResponse } from '../types/Misc';
 
 class NCMBQuery {
   static ncmb: NCMB;
@@ -125,8 +126,8 @@ class NCMBQuery {
       className: this.className,
       where: this._where
     };
-    if (this._skip > 0) params.skip = this._skip;
-    if (this._limit > 0) params.limit = this._limit;
+    if (this._skip && this._skip > 0) params.skip = this._skip;
+    if (this._limit && this._limit > 0) params.limit = this._limit;
     return params;
   }
 
@@ -251,6 +252,8 @@ class NCMBQuery {
           obj = new NCMBRole;
         } else if (this.className === 'files') {
           obj = new NCMBFile;
+        } else if (this.className === 'push') {
+          obj = new NCMBPush;
         } else {
           obj = new NCMBObject(this.className);
         }
@@ -324,7 +327,7 @@ class NCMBQuery {
 
   path() :string {
     let basePath = '';
-    if (['users', 'roles', 'files'].indexOf(this.className) > -1) {
+    if (['users', 'roles', 'installations', 'files', 'push'].indexOf(this.className) > -1) {
       basePath = `/${NCMB.version}/${this.className}`;
     } else {
       basePath = `/${NCMB.version}/classes/${this.className}`;

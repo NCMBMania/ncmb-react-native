@@ -8,6 +8,8 @@ import NCMBFile from './libs/File';
 import NCMBAcl from './libs/Acl';
 import NCMBRelation from './libs/Relation';
 import NCMBGeoPoint from './libs/GeoPoint';
+import NCMBInstallation from './libs/Installation';
+import NCMBPush from './libs/Push';
 
 import { NCMBStorage } from './types/Misc';
 
@@ -38,6 +40,8 @@ class NCMB {
     NCMBRole.ncmb = this;
     NCMBRequest.ncmb = this;
     NCMBSignature.ncmb = this;
+    NCMBInstallation.ncmb = this;
+    NCMBPush.ncmb = this;
   }
 }
 
@@ -52,4 +56,6 @@ export {
   NCMBRequest,
   NCMBRelation,
   NCMBGeoPoint,
+  NCMBInstallation,
+  NCMBPush
 };

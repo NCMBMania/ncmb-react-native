@@ -55,6 +55,18 @@ class NCMBUser extends NCMBObject {
     }
     return !!json.createDate;
   }
+
+  static async requestPasswordReset(mailAddress: string): Promise<boolean> {
+    const r = new NCMBRequest;
+    r.body = { mailAddress }
+    const response = await r.post(`/${NCMB.version}/requestPasswordReset`);
+    const json = (await response.json()) as NCMBResponse;
+    if (json.code) {
+      // エラー
+      throw new Error(`${json.code}: ${json.error}`);
+    }
+    return !!json.createDate;
+  }
   
   static async loginAsAnonymous(): Promise<NCMBUser> {
     const r = new NCMBRequest();

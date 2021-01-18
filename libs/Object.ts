@@ -1,4 +1,4 @@
-import NCMB, { NCMBQuery, NCMBRequest, NCMBUser, NCMBAcl, NCMBRole, NCMBFile } from '../';
+import NCMB, { NCMBQuery, NCMBRequest, NCMBUser, NCMBAcl, NCMBRole, NCMBFile, NCMBInstallation, NCMBPush } from '../';
 import NCMBGeoPoint from './GeoPoint';
 import { NCMBResponse, JsonObject, allowType, NCMBAclFormat, NCMBDate, NCMBGeoPointFormat } from '../types/Misc'
 class NCMBObject {
@@ -11,7 +11,7 @@ class NCMBObject {
     this.className = name;
   }
   
-  set(name :string, value :allowType): NCMBObject | NCMBUser | NCMBRole | NCMBFile {
+  set(name :string, value :allowType): NCMBObject | NCMBUser | NCMBRole | NCMBFile | NCMBInstallation | NCMBPush {
     switch (name) {
       case 'createDate':
       case 'updateDate':
@@ -37,7 +37,7 @@ class NCMBObject {
     return this;
   }
   
-  sets(json: JsonObject) :NCMBObject | NCMBUser | NCMBRole | NCMBFile {
+  sets(json: JsonObject) :NCMBObject | NCMBUser | NCMBRole | NCMBFile | NCMBInstallation | NCMBPush {
     Object.keys(json).forEach(key => {
       this.set(key, json[key] as JsonObject);
     });
@@ -48,7 +48,7 @@ class NCMBObject {
     return this.fields[name];
   }
   
-  setIncrement(name: string, value: number): NCMBObject | NCMBUser {
+  setIncrement(name: string, value: number): NCMBObject | NCMBUser | NCMBInstallation | NCMBPush {
     if (!this.get('objectId')) {
       return this.set(name, value);
     }
@@ -58,7 +58,7 @@ class NCMBObject {
     });
   }
 
-  add(name: string, value: any): NCMBObject | NCMBUser {
+  add(name: string, value: any): NCMBObject | NCMBUser | NCMBInstallation | NCMBPush{
     if (!Array.isArray(value)) {
       value = [value];
     }
@@ -71,7 +71,7 @@ class NCMBObject {
     });
   }
 
-  addUnique(name: string, value: any): NCMBObject | NCMBUser {
+  addUnique(name: string, value: any): NCMBObject | NCMBUser | NCMBInstallation | NCMBPush {
     if (!Array.isArray(value)) {
       value = [value];
     }
@@ -84,7 +84,7 @@ class NCMBObject {
     });
   }
 
-  remove(name: string, value: any): NCMBObject | NCMBUser {
+  remove(name: string, value: any): NCMBObject | NCMBUser | NCMBInstallation | NCMBPush {
     if (!Array.isArray(value)) {
       value = [value];
     }
@@ -94,7 +94,7 @@ class NCMBObject {
     });
   }
 
-  async fetch(): Promise<NCMBObject | NCMBUser | NCMBRole | NCMBFile> {
+  async fetch(): Promise<NCMBObject | NCMBUser | NCMBRole | NCMBFile | NCMBInstallation | NCMBPush> {
     const r = new NCMBRequest();
     const response = await r.get(this.path(), {
     });
@@ -139,6 +139,8 @@ class NCMBObject {
         break;
       case 'NCMBObject':
       case 'NCMBUser':
+      case 'NCMBInstallation':
+      case 'NCMBPush':
         // Pointer
         const obj = this.fields[key] as NCMBObject;
         json[key] = obj.toPointer();
@@ -198,7 +200,7 @@ class NCMBObject {
   
   path() :string {
     let basePath = '';
-    if (['users', 'roles', 'files'].indexOf(this.className) > -1) {
+    if (['users', 'roles', 'files', 'installations', 'push'].indexOf(this.className) > -1) {
       basePath = `/${NCMB.version}/${this.className}`;
     } else {
       basePath = `/${NCMB.version}/classes/${this.className}`;

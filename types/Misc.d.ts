@@ -1,8 +1,9 @@
+import NCMBInstallation from "../libs/Installation";
 import NCMBObject from "../libs/Object";
 import NCMBRole from "../libs/Role";
 import NCMBUser from "../libs/User";
 
-type allowType = string | Date | number | object | null | NCMBUser | NCMBAcl | NCMBObject;
+type allowType = string | Date | number | object | null | NCMBUser | NCMBAcl | NCMBObject | NCMBPush | NCMBInstallation;
 type JsonObject = { [key:string] : allowType };
 
 type NCMBResponse = {
@@ -10,7 +11,8 @@ type NCMBResponse = {
   readonly error?: string;
   readonly results?: [JsonObject];
   readonly count?: number;
-  readonly createDate: string;
+  readonly createDate?: string;
+  readonly updateDate?: string;
   sessionToken?: string;
 }
 
