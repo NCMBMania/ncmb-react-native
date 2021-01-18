@@ -6,7 +6,10 @@ import NCMBUser from './libs/User';
 import NCMBRole from './libs/Role';
 import NCMBFile from './libs/File';
 import NCMBAcl from './libs/Acl';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import NCMBRelation from './libs/Relation';
+import NCMBGeoPoint from './libs/GeoPoint';
+
+import { NCMBStorage } from './types/Misc';
 
 class NCMB {
   public applicationKey :string;
@@ -23,12 +26,11 @@ class NCMB {
   static sessionHeaderKeyName = 'X-NCMB-Apps-Session-Token';
   public sessionToken: string | null = null;
   public currentUser: NCMBUser | null = null;
-  public storage: typeof AsyncStorage;
+  public storage: NCMBStorage | null = null;
   
   constructor(applicationKey :string, clientKey :string) {
     this.applicationKey = applicationKey;
     this.clientKey = clientKey;
-    this.storage = AsyncStorage;
     NCMBUser.ncmb = this;
     NCMBObject.ncmb = this;
     NCMBQuery.ncmb = this;
@@ -40,4 +42,14 @@ class NCMB {
 }
 
 export default NCMB;
-export { NCMBUser, NCMBObject, NCMBQuery, NCMBFile, NCMBAcl, NCMBRole };
+export {
+  NCMBUser,
+  NCMBObject,
+  NCMBQuery,
+  NCMBFile,
+  NCMBAcl,
+  NCMBRole,
+  NCMBRequest,
+  NCMBRelation,
+  NCMBGeoPoint,
+};

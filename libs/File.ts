@@ -1,22 +1,27 @@
-import NCMBObject from './Object';
+import NCMB, { NCMBQuery, NCMBObject, NCMBAcl, NCMBRequest } from '..';
+import FormData from 'form-data';
+import FileType from 'file-type';
+import { JsonObject } from '../types/Misc';
 
 class NCMBFile extends NCMBObject {
   static ncmb: NCMB;
   
-  public className;
-
   constructor() {
     super('files');
-    this.className = 'file';
-    this.data = null;
   }
   
-  async upload(fileName: string, fileData: any, acl: Acl): Boolean {
-    const r = ncmb.Request();
+  static query(): NCMBQuery {
+    return new NCMBQuery('files');
+  }
+
+  static async upload(fileName: string, fileData: string | object | Buffer, acl?: NCMBAcl): Promise<NCMBFile> {
+    const r = new NCMBRequest;
     try {
-      this.fields.objectId = fileName;
       const form = new FormData();
-      if (typeof fileData === 'object') {
+      if (fileData instanceof Buffer) {
+        const { mime } = await FileType.fromBuffer(fileData);
+        form.append('file', fileData, { contentType: mime });
+      } else if (typeof fileData === 'object') {
         form.append('file', {
           name: fileName,
           type: fileData.type,
@@ -25,20 +30,41 @@ class NCMBFile extends NCMBObject {
       } else {
         form.append('file', fileData);
       }
-      form.append('acl', JSON.stringify((acl || ncmb.Acl.default()).toJSON()));
-      const response: Respose = await r.post(this.path(), form);
-      const json: Object = await response.json();
+      form.append('acl', JSON.stringify((acl || new NCMBAcl).toJSON()));
+      const response = await r.post(NCMBFile.path(fileName), form);
+      const json: JsonObject = await response.json();
       if (json.code) {
         // エラー
         throw new Error(`${json.code}: ${json.error}`);
       }
-      Object.keys(json).forEach(key => {
-        this.set(key, json[key]);
-      });
-      return true;
+      const file = new NCMBFile;
+      return file.sets(json) as NCMBFile;
     } catch (e) {
       throw e;
     }
+  }
+
+  async download(binary: boolean = false): Promise<any> {
+    const r = new NCMBRequest;
+    const response = await r.get(this.path());
+    if (response.status > 400) {
+      const json: JsonObject = await response.json();
+      if (json.code) {
+        // エラー
+        throw new Error(`${json.code}: ${json.error}`);
+      } else {
+        throw new Error(`Server error ${response.status}`);
+      }
+    }
+    return binary ? await response.blob() : await response.text();
+  }
+
+  static path(fileName: string): string {
+    return `/${NCMB.version}/files/${fileName}`;
+  }
+
+  path(): string {
+    return `/${NCMB.version}/files/${this.get('fileName')}`;
   }
 }
 

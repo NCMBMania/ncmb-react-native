@@ -1,21 +1,12 @@
 import NCMB from "..";
+import { SignatureString } from '../types/Misc';
 
 const jsSHA = require('jssha');
-
-interface SignatureString {
-  SignatureMethod: string;
-  where?: string;
-  limit?: number;
-  order?: string;
-  'X-NCMB-Application-Key': string;
-  SignatureVersion: string;
-  'X-NCMB-Timestamp': string;
-}
 
 export default class Signature {
   static ncmb: NCMB;
   
-  generate(method :string, path :string, timestamp :date = new Date(), queries: any = {}) :string{
+  generate(method: string, path: string, timestamp: Date = new Date(), queries: any = {}): string{
     const signatureString = this.generateSignatureString(timestamp, queries);
     const ary :string[] = [];
     ary.push(method);
@@ -29,8 +20,8 @@ export default class Signature {
     return sha256.getHMAC('B64');
   }
   
-  generateSignatureString(timestamp :date, queries :ary) :string{
-    const hash :SignatureString = {};
+  generateSignatureString(timestamp: Date, queries: any): string{
+    const hash: SignatureString = {};
     hash[NCMB.signatureMethodName] = NCMB.signatureMethodValue;
     hash[NCMB.signatureVersionName] = NCMB.signatureVersionValue;
     hash[NCMB.timestampKeyName] = timestamp.toISOString();

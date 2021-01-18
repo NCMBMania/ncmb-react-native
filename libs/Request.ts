@@ -26,10 +26,12 @@ class NCMBRequest {
   async exec(method: string, url: string, signature: string, bodies: any = null, file: any = null): Promise<Response> {
     const body = bodies ? JSON.stringify(bodies) : null;
     const headers = this.headers(signature);
+    if (!file) {
+      headers.set(CONTENT_TYPE, ContentType.Json);
+    }
     if (body) {
       return await fetch(url, { method, headers, body });
     } else if (file) {
-      headers.set(CONTENT_TYPE, ContentType.Multi);
       return await fetch(url, { method, headers, body: file });
     } else {
       return await fetch(url, { method, headers });
@@ -41,7 +43,6 @@ class NCMBRequest {
     headers.set(NCMB.applicationKeyName, NCMBRequest.ncmb.applicationKey);
     headers.set(NCMB.timestampKeyName, this.date.toISOString());
     headers.set(NCMB.signatureHeaderName, signature);
-    headers.set(CONTENT_TYPE, ContentType.Json);
     if(NCMBRequest.ncmb.sessionToken) {
       headers.set(NCMB.sessionHeaderKeyName, NCMBRequest.ncmb.sessionToken);
     }
@@ -77,7 +78,7 @@ class NCMBRequest {
     return this.exec(method, this.url(path), signature, this.body);
   }
 
-  async get(path: string, queries: any): Promise<Response> {
+  async get(path: string, queries?: any): Promise<Response> {
     const s = new NCMBSignature;
     const method = HttpMethod.Get;
     this.date = new Date();

@@ -1,40 +1,111 @@
-import NCMB from '../';
-import NCMBRequest from './Request';
-import NCMBUser from './User';
-import NCMBAcl from './Acl';
-
+import NCMB, { NCMBQuery, NCMBRequest, NCMBUser, NCMBAcl, NCMBRole, NCMBFile } from '../';
+import NCMBGeoPoint from './GeoPoint';
+import { NCMBResponse, JsonObject, allowType, NCMBAclFormat, NCMBDate, NCMBGeoPointFormat } from '../types/Misc'
 class NCMBObject {
   static ncmb: NCMB;
-
-  private className: string;
-  private fields: JsonObject;
+  public className: string;
+  public fields: JsonObject;
 
   constructor(name: string) {
     this.fields = {};
     this.className = name;
   }
   
-  set(name :string, value :allowType) :NCMBObject {
-    this.fields[name] = value;
+  set(name :string, value :allowType): NCMBObject | NCMBUser | NCMBRole | NCMBFile {
+    switch (name) {
+      case 'createDate':
+      case 'updateDate':
+        this.fields[name] = new Date(value);
+        break;
+      case 'acl':
+        const acl = new NCMBAcl;
+        acl.sets(value as NCMBAclFormat);
+        this.fields[name] = acl;
+        break;
+      default:
+        this.fields[name] = value;
+        break;
+    }
+
+    if (value && typeof value === 'object' && value.__type === 'GeoPoint') {
+      value = value as NCMBGeoPointFormat;
+      this.fields[name] = new NCMBGeoPoint(value.latitude, value.longitude);
+    }
+    if (value && typeof value === 'object' && value.__type === 'Date') {
+      this.fields[name] = new Date((value as NCMBDate).iso);
+    }
     return this;
   }
   
-  sets(json: JsonObject) :NCMBObject {
+  sets(json: JsonObject) :NCMBObject | NCMBUser | NCMBRole | NCMBFile {
     Object.keys(json).forEach(key => {
       this.set(key, json[key] as JsonObject);
     });
     return this;
   }
   
-  get(name :string): any {
+  get(name :string): allowType {
     return this.fields[name];
   }
   
-  /*
-  static async fetch(): Promise<NCMBObject> {
-    return (await this.fetchAll())[0];
+  setIncrement(name: string, value: number): NCMBObject | NCMBUser {
+    if (!this.get('objectId')) {
+      return this.set(name, value);
+    }
+    return this.set(name, {
+      __op: 'Increment',
+      amount: value
+    });
   }
-  */
+
+  add(name: string, value: any): NCMBObject | NCMBUser {
+    if (!Array.isArray(value)) {
+      value = [value];
+    }
+    if (!this.get('objectId')) {
+      return this.set(name, value);
+    }
+    return this.set(name, {
+      __op: 'Add',
+      objects: value
+    });
+  }
+
+  addUnique(name: string, value: any): NCMBObject | NCMBUser {
+    if (!Array.isArray(value)) {
+      value = [value];
+    }
+    if (!this.get('objectId')) {
+      return this.set(name, value);
+    }
+    return this.set(name, {
+      __op: 'AddUnique',
+      objects: value
+    });
+  }
+
+  remove(name: string, value: any): NCMBObject | NCMBUser {
+    if (!Array.isArray(value)) {
+      value = [value];
+    }
+    return this.set(name, {
+      __op: 'Remove',
+      objects: value
+    });
+  }
+
+  async fetch(): Promise<NCMBObject | NCMBUser | NCMBRole | NCMBFile> {
+    const r = new NCMBRequest();
+    const response = await r.get(this.path(), {
+    });
+    const json = (await response.json()) as NCMBResponse;
+    if (json.code) {
+      // エラー
+      throw new Error(`${json.code}: ${json.error}`);
+    }
+    this.sets(json);
+    return this;
+  }
   
   async delete() : Promise<boolean> {
     const r = new NCMBRequest;
@@ -54,7 +125,7 @@ class NCMBObject {
     }
   }
   
-  toJSON(): object {
+  toJSON(): JsonObject {
     const json: JsonObject = {};
     Object.keys(this.fields).forEach(key => {
       if (['objectId', 'updateDate', 'createDate'].indexOf(key) > -1) return;
@@ -70,11 +141,7 @@ class NCMBObject {
       case 'NCMBUser':
         // Pointer
         const obj = this.fields[key] as NCMBObject;
-        json[key] = {
-          '__type': 'Pointer',
-          'className': obj.className,
-          'objectId': obj.get('objectId')
-        }
+        json[key] = obj.toPointer();
         break;
       case 'Date':
         const date = this.fields[key] as Date;
@@ -83,6 +150,10 @@ class NCMBObject {
           'iso': date.toISOString()
         };
         break;
+      case 'NCMBGeoPoint':
+        const geo = this.fields[key] as NCMBGeoPoint;
+        json[key] = geo.toJSON();
+        break;
       case 'NCMBAcl':
         const acl = this.fields[key] as NCMBAcl;
         json[key] = acl.toJSON();
@@ -90,7 +161,7 @@ class NCMBObject {
       default:
         const func: Function | null = this.fields[key]!.toJSON;
         if (typeof func === 'function') {
-          json[key] = func();
+          json[key] = func.bind(this.fields[key])();
         } else {
           json[key] = this.fields[key];
         }
@@ -99,13 +170,21 @@ class NCMBObject {
     return json;
   }
   
+  toPointer(): JsonObject {
+    return {
+      '__type': 'Pointer',
+      'className': this.className,
+      'objectId': this.get('objectId')
+    };
+  }
+
   async save() : Promise<boolean> {
     const r = new NCMBRequest;
     r.body = this.toJSON();
     try {
       const method = this.fields.objectId ? 'put' : 'post';
       const response = await r[method](this.path());
-      const json: ResponseError | JsonObject = await response.json();
+      const json: NCMBResponse = await response.json();
       if (json.code) {
         // エラー
         throw new Error(`${json.code}: ${json.error}`);
@@ -132,10 +211,10 @@ class NCMBObject {
   }
   /*
   static path() :string {
-    if (['users', 'roles'].indexOf() > -1) {
-      return `/${NCMBObject.ncmb.version}/${name}`;
+    if (['users', 'roles'].indexOf('') > -1) {
+      return `/${NCMB.version}/${name}`;
     } else {
-      return `/${NCMBObject.ncmb.version}/classes/${name}`;
+      return `/${NCMB.version}/classes/${name}`;
     }
   }
   */

@@ -1,15 +1,13 @@
-import NCMB from '../';
-import NCMBObject from './Object';
-import NCMBRequest from './Request';
+import NCMB, { NCMBUser, NCMBObject, NCMBRequest, NCMBRole, NCMBFile, NCMBGeoPoint } from '../';
 
 class NCMBQuery {
   static ncmb: NCMB;
   
-  private _where: {[key: string]: any} = {};
-  private _limit: number = 10;
+  public _where: {[key: string]: any} = {};
+  private _limit: number | null = null;
+  private _skip: number | null = null;
   private _count: string = '';
-  private _offset: number = 0;
-  private _order: string = 'createDate';
+  private _order: string | null = null;
   private _include: string = '';
   private className: string;
 
@@ -57,6 +55,90 @@ class NCMBQuery {
   allInArray(name: string, value: any): NCMBQuery {
     return this.setOperand(name, value, '$all');
   }
+  regularExpressionTo(name: string, value: RegExp): NCMBQuery {
+    return this.setOperand(name, value.toString().slice(1, -1), '$regex');
+  }
+
+  near(name: string, geo: NCMBGeoPoint): NCMBQuery {
+    return this.setOperand(name, geo.toJSON(), '$nearSphere');
+  }
+
+  withinKilometers(name: string, geo: NCMBGeoPoint, distance: number): NCMBQuery {
+    this.setOperand(name, geo.toJSON(), '$nearSphere');
+    this._where[name]['$maxDistanceInKilometers'] = distance;
+    return this;
+  }
+
+  withinMiles(name: string, geo: NCMBGeoPoint, distance: number): NCMBQuery {
+    this.setOperand(name, geo.toJSON(), '$nearSphere');
+    this._where[name]['$maxDistanceInMiles'] = distance;
+    return this;
+  }
+  
+  withinRadians(name: string, geo: NCMBGeoPoint, distance: number): NCMBQuery {
+    this.setOperand(name, geo.toJSON(), '$nearSphere');
+    this._where[name]['$maxDistanceInRadians'] = distance;
+    return this;
+  }
+  
+  withinSquare(name: string, southWestGeo: NCMBGeoPoint, northEastGeo: NCMBGeoPoint): NCMBQuery {
+    const box = {
+      '$box': [southWestGeo.toJSON(), northEastGeo.toJSON()]
+    };
+    return this.setOperand(name, box, '$within');
+  }
+
+  select(name: string, subKey: string, query: NCMBQuery): NCMBQuery {
+    const className = query.getClassName();
+    if (!this._where[name]) this._where[name] = {};
+    this._where[name]["$select"] = {
+      query: query.getSelectParams(),
+      key: subKey
+    };
+    return this;
+  }
+
+  inQuery(name: string, query: NCMBQuery): NCMBQuery {
+    const className = query.getClassName();
+    if (!this._where[name]) this._where[name] = {};
+    this._where[name]["$inQuery"] = query.getSelectParams()
+    return this;
+  }
+
+  getClassName(): string {
+    switch (this.className) {
+      case 'users':
+        return 'user';
+      case 'roles':
+        return 'role';
+      case 'installations':
+        return 'installation';
+      case 'files':
+        return 'file';
+      default:
+        return this.className;
+    }
+  }
+
+  getSelectParams(): {[s: string]: any} {
+    const params: {[s: string]: any} = {
+      className: this.className,
+      where: this._where
+    };
+    if (this._skip > 0) params.skip = this._skip;
+    if (this._limit > 0) params.limit = this._limit;
+    return params;
+  }
+
+  or(queries: NCMBQuery[]): NCMBQuery {
+    if (!Array.isArray(this._where['$or'])) {
+      this._where['$or'] = [];
+    }
+    for (const query of queries) {
+      this._where['$or'].push(query._where);
+    }
+    return this;
+  }
   
   setOperand(name: string, value: any, operand?: string): NCMBQuery {
     let condition = this._where[name];
@@ -87,7 +169,7 @@ class NCMBQuery {
   }
   
   skip(value: number): NCMBQuery {
-    this._offset = value;
+    this._skip = value;
     return this;
   }
   
@@ -108,7 +190,27 @@ class NCMBQuery {
     return this;
   }
   
-  async fetch(): Promise<NCMBObject> {
+  relatedTo(obj: NCMBObject | NCMBUser | NCMBRole, key: string): NCMBQuery {
+    let className: string;
+    if (obj instanceof NCMBUser) {
+      className = 'user';
+    } else if (obj instanceof NCMBRole) {
+      className = 'role';
+    } else {
+      className = obj.className;
+    }
+    this._where['$relatedTo'] = {
+      object: {
+        __type: 'Pointer',
+        className,
+        objectId: obj.get('objectId')
+      },
+      key
+    }
+    return this;
+  }
+
+  async fetch(): Promise<NCMBObject | NCMBUser | NCMBRole | NCMBFile> {
     this._limit = 1;
     return (await this.fetchAll())[0];
   }
@@ -119,7 +221,7 @@ class NCMBQuery {
     return {count: json.count!, results: ary};
   }
 
-  async fetchAll(): Promise<NCMBObject[]> {
+  async fetchAll(): Promise<NCMBObject[] | NCMBUser[] | NCMBRole[] | NCMBFile[]> {
     const { ary } = await this.fetchData();
     return ary;
   }
@@ -129,7 +231,7 @@ class NCMBQuery {
     try {
       const response = await r.get(this.path(), {
         where: this._where,
-        offset: this._offset,
+        skip: this._skip,
         limit: this._limit,
         order: this._order,
         include: this._include,
@@ -142,11 +244,21 @@ class NCMBQuery {
       }
       const ary = [] as NCMBObject[];
       for (let params of json.results!) {
-        const obj = new NCMBObject(this.className);
+        let obj: NCMBObject | NCMBUser | NCMBRole | NCMBFile;
+        if (this.className === 'users') {
+          obj = new NCMBUser;
+        } else if (this.className === 'roles') {
+          obj = new NCMBRole;
+        } else if (this.className === 'files') {
+          obj = new NCMBFile;
+        } else {
+          obj = new NCMBObject(this.className);
+        }
+        
         Object.keys(params).forEach(key => {
           if (this._include && key === this._include) {
             const pointer = params[key] as NCMBPointer;
-            const child = new NCMBObject(pointer.className);
+            const child = new NCMBObject(pointer.className!);
             delete pointer.className;
             delete params[pointer.__type!];
             child.sets(pointer);
@@ -163,6 +275,7 @@ class NCMBQuery {
     }
   }
 
+  /*
   toJSON(): object {
     const json: object = {};
     Object.keys(this.fields).forEach(key => {
@@ -207,7 +320,8 @@ class NCMBQuery {
     });
     return json;
   }
-    
+  */
+
   path() :string {
     let basePath = '';
     if (['users', 'roles', 'files'].indexOf(this.className) > -1) {

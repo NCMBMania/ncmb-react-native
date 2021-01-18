@@ -1,2 +1,13 @@
 node_modules/
 package-lock.json
+charles-ssl-proxying-certificate.cer charles-ssl-proxying-certificate.pem charles-ssl-proxying.p12
+test/config.json
+test/charles-ssl-proxying-certificate.pem test/charles-ssl-proxying.p12
+test/charles-ssl-proxying-certificate.pem
+scratch/
+test/charles-ssl-proxying.p12
+scratch/
+charles-ssl-proxying-certificate.cer
+charles-ssl-proxying-certificate.pem
+charles-ssl-proxying.p12
+.DS_Store
