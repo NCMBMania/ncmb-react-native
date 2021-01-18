@@ -17,8 +17,23 @@ npm i ncmb-react-native -S
 必要なものを取得してください。
 
 ```javascript
-import NCMB, { NCMBUser, NCMBObject, NCMBQuery, NCMBFile, NCMBAcl, NCMBRole, NCMBRequest, NCMBRelation, NCMBGeoPoint, NCMBInstallation, NCMBPush } from 'ncmb-react-native';
+import NCMB, { NCMBUser, NCMBObject, NCMBQuery, 
+  NCMBFile, NCMBAcl, NCMBRole, 
+  NCMBRequest, NCMBRelation, NCMBGeoPoint, 
+  NCMBInstallation, NCMBPush } from 'ncmb-react-native';
 ```
+
+- NCMBUser（会員管理）
+- NCMBObject（データストア。保存、更新、削除）
+- NCMBQuery（データストア。検索、取得）
+- NCMBFile（ファイルストア）
+- NCMBAcl（権限管理）
+- NCMBRole（ロール、ユーザやロールのグルーピング）
+- NCMBRequest（NCMBへのリクエスト用。通常は利用しません）
+- NCMBRelation（データストアのリレーション）
+- NCMBGeoPoint（位置情報）
+- NCMBInstallation（デバイストークン）
+- NCMBPush（プッシュ通知）
 
 ### 初期化
 
