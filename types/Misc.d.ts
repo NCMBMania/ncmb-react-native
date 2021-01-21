@@ -17,9 +17,9 @@ type NCMBResponse = {
 }
 
 type NCMBPointer = {
+  objectId: string;
   __type?: string;
   className?: string;
-  objectId: string;
 }
 
 interface dateFormat {
@@ -72,4 +72,15 @@ type NCMBStorage = {
 
 interface SignatureString {
   [s: string]: string | number;
+}
+
+type expoMediaFormat = {
+  cancelled: boolean;
+  type: string;
+  uri: string;
+  width: number;
+  height: number;
+  exif: object;
+  base64: string;
+  duration: number;
 }

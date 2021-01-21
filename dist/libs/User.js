@@ -12,6 +12,25 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -48,19 +67,17 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-var Object_ts_1 = __importDefault(require("./Object.ts"));
-var v4_1 = __importDefault(require("uuid/v4"));
+var __1 = __importStar(require("../"));
+var uuid_1 = require("uuid");
 var NCMBUser = /** @class */ (function (_super) {
     __extends(NCMBUser, _super);
     function NCMBUser() {
-        var _this = _super.call(this, 'users') || this;
-        _this.className = 'user';
-        return _this;
+        return _super.call(this, 'users') || this;
     }
+    NCMBUser.query = function () {
+        return new __1.NCMBQuery('users');
+    };
     NCMBUser.prototype.signUpWith = function (provider, authData) {
         return __awaiter(this, void 0, void 0, function () {
             var expireDate;
@@ -87,7 +104,7 @@ var NCMBUser = /** @class */ (function (_super) {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        r = ncmb.Request();
+                        r = new __1.NCMBRequest();
                         r.body = this.fields;
                         _a.label = 1;
                     case 1:
@@ -97,12 +114,12 @@ var NCMBUser = /** @class */ (function (_super) {
                         response = _a.sent();
                         return [4 /*yield*/, response.json()];
                     case 3:
-                        json = _a.sent();
+                        json = (_a.sent());
                         if (json.code) {
                             // エラー
                             throw new Error(json.code + ": " + json.error);
                         }
-                        ncmb.sessionToken = json.sessionToken;
+                        NCMBUser.ncmb.sessionToken = json.sessionToken;
                         delete json.sessionToken;
                         this.sets(json);
                         return [2 /*return*/, true];
@@ -114,29 +131,75 @@ var NCMBUser = /** @class */ (function (_super) {
             });
         });
     };
+    NCMBUser.requestSignUpEmail = function (mailAddress) {
+        return __awaiter(this, void 0, void 0, function () {
+            var r, response, json;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        r = new __1.NCMBRequest;
+                        r.body = { mailAddress: mailAddress };
+                        return [4 /*yield*/, r.post("/" + __1.default.version + "/requestMailAddressUserEntry")];
+                    case 1:
+                        response = _a.sent();
+                        return [4 /*yield*/, response.json()];
+                    case 2:
+                        json = (_a.sent());
+                        if (json.code) {
+                            // エラー
+                            throw new Error(json.code + ": " + json.error);
+                        }
+                        return [2 /*return*/, !!json.createDate];
+                }
+            });
+        });
+    };
+    NCMBUser.requestPasswordReset = function (mailAddress) {
+        return __awaiter(this, void 0, void 0, function () {
+            var r, response, json;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        r = new __1.NCMBRequest;
+                        r.body = { mailAddress: mailAddress };
+                        return [4 /*yield*/, r.post("/" + __1.default.version + "/requestPasswordReset")];
+                    case 1:
+                        response = _a.sent();
+                        return [4 /*yield*/, response.json()];
+                    case 2:
+                        json = (_a.sent());
+                        if (json.code) {
+                            // エラー
+                            throw new Error(json.code + ": " + json.error);
+                        }
+                        return [2 /*return*/, !!json.createDate];
+                }
+            });
+        });
+    };
     NCMBUser.loginAsAnonymous = function () {
-        return __awaiter(this, void 0, User, function () {
+        return __awaiter(this, void 0, void 0, function () {
             var r, response, json, e_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        r = ncmb.Request();
+                        r = new __1.NCMBRequest();
                         r.body = {
                             authData: {
                                 anonymous: {
-                                    id: v4_1.default()
+                                    id: uuid_1.v4()
                                 }
                             }
                         };
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 5, , 6]);
-                        return [4 /*yield*/, r.post(this.path())];
+                        return [4 /*yield*/, r.post(NCMBUser.path())];
                     case 2:
                         response = _a.sent();
                         return [4 /*yield*/, response.json()];
                     case 3:
-                        json = _a.sent();
+                        json = (_a.sent());
                         return [4 /*yield*/, this.setUser(json)];
                     case 4: return [2 /*return*/, _a.sent()];
                     case 5:
@@ -147,52 +210,66 @@ var NCMBUser = /** @class */ (function (_super) {
             });
         });
     };
+    NCMBUser.path = function () {
+        return "/" + __1.default.version + "/users";
+    };
     NCMBUser.currentUser = function () {
-        return __awaiter(this, void 0, User, function () {
-            var string, json;
+        return __awaiter(this, void 0, void 0, function () {
+            var ncmb, str, json;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
+                        ncmb = NCMBUser.ncmb;
                         if (ncmb.currentUser)
                             return [2 /*return*/, ncmb.currentUser];
                         if (!ncmb.storage)
                             return [2 /*return*/, null];
                         return [4 /*yield*/, ncmb.storage.getItem('currentUser')];
                     case 1:
-                        string = _a.sent();
-                        if (string === null) {
+                        str = _a.sent();
+                        if (str === null) {
                             return [2 /*return*/, null];
                         }
-                        json = JSON.parse(string);
-                        return [4 /*yield*/, this.setUser(json)];
+                        json = JSON.parse(str);
+                        return [4 /*yield*/, NCMBUser.setUser(json)];
                     case 2: return [2 /*return*/, _a.sent()];
                 }
             });
         });
     };
     NCMBUser.login = function (userName, password) {
-        return __awaiter(this, void 0, User, function () {
-            var r, query, response, json, e_3;
+        return __awaiter(this, void 0, void 0, function () {
+            var query;
+            return __generator(this, function (_a) {
+                query = { userName: userName, password: password };
+                return [2 /*return*/, NCMBUser.loginWithUserNameOrMailAddress(query)];
+            });
+        });
+    };
+    NCMBUser.loginWithMailAddress = function (mailAddress, password) {
+        return __awaiter(this, void 0, void 0, function () {
+            var query;
+            return __generator(this, function (_a) {
+                query = { mailAddress: mailAddress, password: password };
+                return [2 /*return*/, NCMBUser.loginWithUserNameOrMailAddress(query)];
+            });
+        });
+    };
+    NCMBUser.loginWithUserNameOrMailAddress = function (query) {
+        return __awaiter(this, void 0, void 0, function () {
+            var r, response, json;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        r = ncmb.Request();
-                        query = { userName: userName, password: password };
-                        _a.label = 1;
+                        r = new __1.NCMBRequest;
+                        return [4 /*yield*/, r.get("/" + __1.default.version + "/login", query)];
                     case 1:
-                        _a.trys.push([1, 5, , 6]);
-                        return [4 /*yield*/, r.get("/" + ncmb.version + "/login", query)];
-                    case 2:
                         response = _a.sent();
                         return [4 /*yield*/, response.json()];
-                    case 3:
-                        json = _a.sent();
-                        return [4 /*yield*/, this.setUser(json)];
-                    case 4: return [2 /*return*/, _a.sent()];
-                    case 5:
-                        e_3 = _a.sent();
-                        throw e_3;
-                    case 6: return [2 /*return*/];
+                    case 2:
+                        json = (_a.sent());
+                        return [4 /*yield*/, NCMBUser.setUser(json)];
+                    case 3: return [2 /*return*/, _a.sent()];
                 }
             });
         });
@@ -207,17 +284,17 @@ var NCMBUser = /** @class */ (function (_super) {
                             // エラー
                             throw new Error(json.code + ": " + json.error);
                         }
-                        ncmb.sessionToken = json.sessionToken;
-                        if (!ncmb.storage) return [3 /*break*/, 2];
-                        return [4 /*yield*/, ncmb.storage.setItem('currentUser', JSON.stringify(json))];
+                        NCMBUser.ncmb.sessionToken = json.sessionToken;
+                        if (!NCMBUser.ncmb.storage) return [3 /*break*/, 2];
+                        return [4 /*yield*/, NCMBUser.ncmb.storage.setItem('currentUser', JSON.stringify(json))];
                     case 1:
                         _a.sent();
                         _a.label = 2;
                     case 2:
                         delete json.sessionToken;
-                        user = new ncmb.User();
+                        user = new NCMBUser();
                         user.sets(json);
-                        ncmb.currentUser = user;
+                        NCMBUser.ncmb.currentUser = user;
                         return [2 /*return*/, user];
                 }
             });
@@ -227,12 +304,18 @@ var NCMBUser = /** @class */ (function (_super) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, ncmb.storage.removeItem('currentUser')];
-                    case 1: return [2 /*return*/, _a.sent()];
+                    case 0:
+                        NCMBUser.ncmb.sessionToken = null;
+                        if (!NCMBUser.ncmb.storage) return [3 /*break*/, 2];
+                        return [4 /*yield*/, NCMBUser.ncmb.storage.removeItem('currentUser')];
+                    case 1:
+                        _a.sent();
+                        _a.label = 2;
+                    case 2: return [2 /*return*/, true];
                 }
             });
         });
     };
     return NCMBUser;
-}(Object_ts_1.default));
+}(__1.NCMBObject));
 exports.default = NCMBUser;

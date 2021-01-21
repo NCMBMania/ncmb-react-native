@@ -1,6 +1,6 @@
 import NCMB, { NCMBQuery, NCMBObject, NCMBAcl, NCMBRequest } from '..';
 import FormData from 'form-data';
-import { JsonObject } from '../types/Misc';
+import { JsonObject, expoMediaFormat } from '../types/Misc';
 
 class NCMBFile extends NCMBObject {
   static ncmb: NCMB;
@@ -13,7 +13,7 @@ class NCMBFile extends NCMBObject {
     return new NCMBQuery('files');
   }
 
-  static async upload(fileName: string, fileData: string | object | Buffer, contentType?: string, acl?: NCMBAcl): Promise<NCMBFile> {
+  static async upload(fileName: string, fileData: string | expoMediaFormat | Buffer, acl?: NCMBAcl, contentType?: string | null): Promise<NCMBFile> {
     const r = new NCMBRequest;
     try {
       const form = new FormData();

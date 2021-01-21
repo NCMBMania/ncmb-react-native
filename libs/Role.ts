@@ -1,4 +1,5 @@
 import NCMB, {NCMBUser, NCMBObject, NCMBQuery} from '..';
+import { JsonObject } from '../types/Misc';
 
 class NCMBRole extends NCMBObject {
   static ncmb: NCMB;

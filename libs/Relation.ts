@@ -64,9 +64,10 @@ class NCMBRelation {
   toJSON(): NCMBRelationFormat {
     const json: NCMBRelationFormat = {
       __op: this.fields.__op,
-      objects: []
+      objects:  []
     };
-    for (const obj of this.fields.objects as NCMBObject[] | NCMBUser[] | NCMBRole[]) {
+    for (const obj of this.fields.objects) {
+      obj as NCMBObject | NCMBUser | NCMBRole;
       json.objects.push(obj.toPointer());
     }
     return json;

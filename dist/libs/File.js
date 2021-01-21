@@ -12,6 +12,25 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -52,29 +71,32 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var Object_1 = __importDefault(require("./Object"));
+var __1 = __importStar(require(".."));
+var form_data_1 = __importDefault(require("form-data"));
 var NCMBFile = /** @class */ (function (_super) {
     __extends(NCMBFile, _super);
     function NCMBFile() {
-        var _this = _super.call(this, 'files') || this;
-        _this.className = 'file';
-        _this.data = null;
-        return _this;
+        return _super.call(this, 'files') || this;
     }
-    NCMBFile.prototype.upload = function (fileName, fileData, acl) {
-        return __awaiter(this, void 0, Boolean, function () {
-            var r, form, response, json_1, e_1;
-            var _this = this;
+    NCMBFile.query = function () {
+        return new __1.NCMBQuery('files');
+    };
+    NCMBFile.upload = function (fileName, fileData, contentType, acl) {
+        return __awaiter(this, void 0, void 0, function () {
+            var r, form, response, json, file, e_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        r = ncmb.Request();
+                        r = new __1.NCMBRequest;
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 4, , 5]);
-                        this.fields.objectId = fileName;
-                        form = new FormData();
-                        if (typeof fileData === 'object') {
+                        form = new form_data_1.default();
+                        if (fileData instanceof Buffer) {
+                            contentType = contentType || 'application/octet-stream';
+                            form.append('file', fileData, { contentType: contentType });
+                        }
+                        else if (typeof fileData === 'object') {
                             form.append('file', {
                                 name: fileName,
                                 type: fileData.type,
@@ -84,21 +106,19 @@ var NCMBFile = /** @class */ (function (_super) {
                         else {
                             form.append('file', fileData);
                         }
-                        form.append('acl', JSON.stringify((acl || ncmb.Acl.default()).toJSON()));
-                        return [4 /*yield*/, r.post(this.path(), form)];
+                        form.append('acl', JSON.stringify((acl || new __1.NCMBAcl).toJSON()));
+                        return [4 /*yield*/, r.post(NCMBFile.path(fileName), form)];
                     case 2:
                         response = _a.sent();
                         return [4 /*yield*/, response.json()];
                     case 3:
-                        json_1 = _a.sent();
-                        if (json_1.code) {
+                        json = _a.sent();
+                        if (json.code) {
                             // エラー
-                            throw new Error(json_1.code + ": " + json_1.error);
+                            throw new Error(json.code + ": " + json.error);
                         }
-                        Object.keys(json_1).forEach(function (key) {
-                            _this.set(key, json_1[key]);
-                        });
-                        return [2 /*return*/, true];
+                        file = new NCMBFile;
+                        return [2 /*return*/, file.sets(json)];
                     case 4:
                         e_1 = _a.sent();
                         throw e_1;
@@ -107,6 +127,50 @@ var NCMBFile = /** @class */ (function (_super) {
             });
         });
     };
+    NCMBFile.prototype.download = function (binary) {
+        if (binary === void 0) { binary = false; }
+        return __awaiter(this, void 0, void 0, function () {
+            var r, response, json, _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        r = new __1.NCMBRequest;
+                        return [4 /*yield*/, r.get(this.path())];
+                    case 1:
+                        response = _b.sent();
+                        if (!(response.status > 400)) return [3 /*break*/, 3];
+                        return [4 /*yield*/, response.json()];
+                    case 2:
+                        json = _b.sent();
+                        if (json.code) {
+                            // エラー
+                            throw new Error(json.code + ": " + json.error);
+                        }
+                        else {
+                            throw new Error("Server error " + response.status);
+                        }
+                        _b.label = 3;
+                    case 3:
+                        if (!binary) return [3 /*break*/, 5];
+                        return [4 /*yield*/, response.blob()];
+                    case 4:
+                        _a = _b.sent();
+                        return [3 /*break*/, 7];
+                    case 5: return [4 /*yield*/, response.text()];
+                    case 6:
+                        _a = _b.sent();
+                        _b.label = 7;
+                    case 7: return [2 /*return*/, _a];
+                }
+            });
+        });
+    };
+    NCMBFile.path = function (fileName) {
+        return "/" + __1.default.version + "/files/" + fileName;
+    };
+    NCMBFile.prototype.path = function () {
+        return "/" + __1.default.version + "/files/" + this.get('fileName');
+    };
     return NCMBFile;
-}(Object_1.default));
+}(__1.NCMBObject));
 exports.default = NCMBFile;

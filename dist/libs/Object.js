@@ -1,4 +1,23 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -35,14 +54,39 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+var __1 = __importStar(require("../"));
+var GeoPoint_1 = __importDefault(require("./GeoPoint"));
 var NCMBObject = /** @class */ (function () {
     function NCMBObject(name) {
         this.fields = {};
         this.className = name;
     }
     NCMBObject.prototype.set = function (name, value) {
-        this.fields[name] = value;
+        switch (name) {
+            case 'createDate':
+            case 'updateDate':
+                this.fields[name] = new Date(value);
+                break;
+            case 'acl':
+                var acl = new __1.NCMBAcl;
+                acl.sets(value);
+                this.fields[name] = acl;
+                break;
+            default:
+                this.fields[name] = value;
+                break;
+        }
+        if (value && typeof value === 'object' && value.__type === 'GeoPoint') {
+            value = value;
+            this.fields[name] = new GeoPoint_1.default(value.latitude, value.longitude);
+        }
+        if (value && typeof value === 'object' && value.__type === 'Date') {
+            this.fields[name] = new Date(value.iso);
+        }
         return this;
     };
     NCMBObject.prototype.sets = function (json) {
@@ -55,14 +99,67 @@ var NCMBObject = /** @class */ (function () {
     NCMBObject.prototype.get = function (name) {
         return this.fields[name];
     };
-    NCMBObject.fetch = function () {
-        return __awaiter(this, void 0, NCMBObject, function () {
+    NCMBObject.prototype.setIncrement = function (name, value) {
+        if (!this.get('objectId')) {
+            return this.set(name, value);
+        }
+        return this.set(name, {
+            __op: 'Increment',
+            amount: value
+        });
+    };
+    NCMBObject.prototype.add = function (name, value) {
+        if (!Array.isArray(value)) {
+            value = [value];
+        }
+        if (!this.get('objectId')) {
+            return this.set(name, value);
+        }
+        return this.set(name, {
+            __op: 'Add',
+            objects: value
+        });
+    };
+    NCMBObject.prototype.addUnique = function (name, value) {
+        if (!Array.isArray(value)) {
+            value = [value];
+        }
+        if (!this.get('objectId')) {
+            return this.set(name, value);
+        }
+        return this.set(name, {
+            __op: 'AddUnique',
+            objects: value
+        });
+    };
+    NCMBObject.prototype.remove = function (name, value) {
+        if (!Array.isArray(value)) {
+            value = [value];
+        }
+        return this.set(name, {
+            __op: 'Remove',
+            objects: value
+        });
+    };
+    NCMBObject.prototype.fetch = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var r, response, json;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        limit = 1;
-                        return [4 /*yield*/, this.fetchAll()];
-                    case 1: return [2 /*return*/, (_a.sent())[0]];
+                        r = new __1.NCMBRequest();
+                        return [4 /*yield*/, r.get(this.path(), {})];
+                    case 1:
+                        response = _a.sent();
+                        return [4 /*yield*/, response.json()];
+                    case 2:
+                        json = (_a.sent());
+                        if (json.code) {
+                            // エラー
+                            throw new Error(json.code + ": " + json.error);
+                        }
+                        this.sets(json);
+                        return [2 /*return*/, this];
                 }
             });
         });
@@ -73,7 +170,7 @@ var NCMBObject = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        r = ncmb.Request();
+                        r = new __1.NCMBRequest;
                         r.body = this.fields;
                         _a.label = 1;
                     case 1:
@@ -91,7 +188,7 @@ var NCMBObject = /** @class */ (function () {
                             // エラー
                             throw new Error(json.code + ": " + json.error);
                         }
-                        return [2 /*return*/, false];
+                        return [2 /*return*/, true];
                     case 4:
                         e_1 = _a.sent();
                         throw e_1;
@@ -106,25 +203,21 @@ var NCMBObject = /** @class */ (function () {
         Object.keys(this.fields).forEach(function (key) {
             if (['objectId', 'updateDate', 'createDate'].indexOf(key) > -1)
                 return;
-            if (!isNaN(_this.fields[key])) {
-                // number
-                json[key] = _this.fields[key];
-                return;
-            }
             if (_this.fields[key] === null) {
                 json[key] = null;
                 return;
             }
             switch (_this.fields[key].constructor.name) {
-                case 'DataStore':
-                case 'User':
+                case 'Number':
+                    json[key] = _this.fields[key];
+                    break;
+                case 'NCMBObject':
+                case 'NCMBUser':
+                case 'NCMBInstallation':
+                case 'NCMBPush':
                     // Pointer
                     var obj = _this.fields[key];
-                    json[key] = {
-                        '__type': 'Pointer',
-                        'className': obj.className,
-                        'objectId': obj.get('objectId')
-                    };
+                    json[key] = obj.toPointer();
                     break;
                 case 'Date':
                     var date = _this.fields[key];
@@ -133,12 +226,18 @@ var NCMBObject = /** @class */ (function () {
                         'iso': date.toISOString()
                     };
                     break;
-                case 'Acl':
-                    json[key] = _this.fields[key].toJSON();
+                case 'NCMBGeoPoint':
+                    var geo = _this.fields[key];
+                    json[key] = geo.toJSON();
+                    break;
+                case 'NCMBAcl':
+                    var acl = _this.fields[key];
+                    json[key] = acl.toJSON();
                     break;
                 default:
-                    if (typeof _this.fields[key].toJSON === 'function') {
-                        json[key] = _this.fields[key].toJSON();
+                    var func = _this.fields[key].toJSON;
+                    if (typeof func === 'function') {
+                        json[key] = func.bind(_this.fields[key])();
                     }
                     else {
                         json[key] = _this.fields[key];
@@ -148,14 +247,20 @@ var NCMBObject = /** @class */ (function () {
         });
         return json;
     };
+    NCMBObject.prototype.toPointer = function () {
+        return {
+            '__type': 'Pointer',
+            'className': this.className,
+            'objectId': this.get('objectId')
+        };
+    };
     NCMBObject.prototype.save = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var r, method, response, json_1, e_2;
-            var _this = this;
+            var r, method, response, json, e_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        r = ncmb.Request();
+                        r = new __1.NCMBRequest;
                         r.body = this.toJSON();
                         _a.label = 1;
                     case 1:
@@ -166,14 +271,12 @@ var NCMBObject = /** @class */ (function () {
                         response = _a.sent();
                         return [4 /*yield*/, response.json()];
                     case 3:
-                        json_1 = _a.sent();
-                        if (json_1.code) {
+                        json = _a.sent();
+                        if (json.code) {
                             // エラー
-                            throw new Error(json_1.code + ": " + json_1.error);
+                            throw new Error(json.code + ": " + json.error);
                         }
-                        Object.keys(json_1).forEach(function (key) {
-                            _this.set(key, json_1[key]);
-                        });
+                        this.sets(json);
                         return [2 /*return*/, true];
                     case 4:
                         e_2 = _a.sent();
@@ -185,25 +288,17 @@ var NCMBObject = /** @class */ (function () {
     };
     NCMBObject.prototype.path = function () {
         var basePath = '';
-        if (['users', 'roles', 'files'].indexOf(name) > -1) {
-            basePath = "/" + ncmb.version + "/" + name;
+        if (['users', 'roles', 'files', 'installations', 'push'].indexOf(this.className) > -1) {
+            basePath = "/" + __1.default.version + "/" + this.className;
         }
         else {
-            basePath = "/" + ncmb.version + "/classes/" + name;
+            basePath = "/" + __1.default.version + "/classes/" + this.className;
         }
         if (this.fields.objectId) {
             return basePath + "/" + this.fields.objectId;
         }
         else {
             return basePath;
-        }
-    };
-    NCMBObject.path = function () {
-        if (['users', 'roles'].indexOf(name) > -1) {
-            return "/" + ncmb.version + "/" + name;
-        }
-        else {
-            return "/" + ncmb.version + "/classes/" + name;
         }
     };
     return NCMBObject;

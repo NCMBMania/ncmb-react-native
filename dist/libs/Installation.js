@@ -48,92 +48,38 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-var __1 = require("..");
-var NCMBRole = /** @class */ (function (_super) {
-    __extends(NCMBRole, _super);
-    function NCMBRole() {
-        var _this = _super.call(this, 'roles') || this;
-        _this.users = [];
-        _this.roles = [];
+var __1 = require("../");
+var package_json_1 = __importDefault(require("../package.json"));
+var NCMBInstallation = /** @class */ (function (_super) {
+    __extends(NCMBInstallation, _super);
+    function NCMBInstallation() {
+        var _this = _super.call(this, 'installations') || this;
+        _this.fields = {
+            sdk: 'React Native',
+            sdkVersion: package_json_1.default.version
+        };
         return _this;
     }
-    NCMBRole.query = function () {
-        return new __1.NCMBQuery('roles');
+    NCMBInstallation.query = function () {
+        return new __1.NCMBQuery('installations');
     };
-    NCMBRole.prototype.addUser = function (user) {
-        this.users.push(user);
-        return this;
-    };
-    NCMBRole.prototype.addRole = function (role) {
-        this.roles.push(role);
-        return this;
-    };
-    NCMBRole.prototype.fetchUser = function () {
+    NCMBInstallation.prototype.save = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.fetchRelated('User')];
-                    case 1: return [2 /*return*/, (_a.sent())];
+                if (!this.fields.deviceToken || this.fields.deviceToken === '') {
+                    throw new Error('Device Token is required.');
                 }
-            });
-        });
-    };
-    NCMBRole.prototype.fetchRole = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.fetchRelated('Role')];
-                    case 1: return [2 /*return*/, (_a.sent())];
+                if (!this.fields.deviceType || ['ios', 'android'].indexOf(this.fields.deviceType) === -1) {
+                    throw new Error('Device type has to be ios or android');
                 }
+                return [2 /*return*/, _super.prototype.save.call(this)];
             });
         });
     };
-    NCMBRole.prototype.fetchRelated = function (key) {
-        return __awaiter(this, void 0, void 0, function () {
-            var query;
-            return __generator(this, function (_a) {
-                query = (key === 'User' ? __1.NCMBUser : NCMBRole).query();
-                return [2 /*return*/, query
-                        .relatedTo(this, "belong" + key)
-                        .fetchAll()];
-            });
-        });
-    };
-    NCMBRole.prototype.getObjects = function (name) {
-        if (name === 'User') {
-            return this.users;
-        }
-        else {
-            return this.roles;
-        }
-    };
-    NCMBRole.prototype.convert = function (name) {
-        var belongType = "belong" + name;
-        var json = {};
-        if (!json[belongType]) {
-            json[belongType] = {
-                '__op': 'AddRelation',
-                'objects': []
-            };
-        }
-        this.getObjects(name).forEach(function (obj) {
-            json[belongType].objects.push({
-                '__type': 'Pointer',
-                'className': name.toLowerCase(),
-                'objectId': obj.get('objectId')
-            });
-        });
-        return json[belongType];
-    };
-    NCMBRole.prototype.toJSON = function () {
-        var json = _super.prototype.toJSON.call(this);
-        if (this.users.length > 0)
-            json.belongUser = this.convert('User');
-        if (this.roles.length > 0)
-            json.belongRole = this.convert('Role');
-        return json;
-    };
-    return NCMBRole;
+    return NCMBInstallation;
 }(__1.NCMBObject));
-exports.default = NCMBRole;
+exports.default = NCMBInstallation;

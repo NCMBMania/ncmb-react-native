@@ -1,0 +1,32 @@
+import NCMBObject from './libs/Object';
+import NCMBQuery from './libs/Query';
+import NCMBRequest from './libs/Request';
+import NCMBUser from './libs/User';
+import NCMBRole from './libs/Role';
+import NCMBFile from './libs/File';
+import NCMBAcl from './libs/Acl';
+import NCMBRelation from './libs/Relation';
+import NCMBGeoPoint from './libs/GeoPoint';
+import NCMBInstallation from './libs/Installation';
+import NCMBPush from './libs/Push';
+import { NCMBStorage } from './types/Misc';
+declare class NCMB {
+    applicationKey: string;
+    clientKey: string;
+    static fqdn: string;
+    static version: string;
+    static applicationKeyName: string;
+    static signatureMethodName: string;
+    static signatureMethodValue: string;
+    static signatureHeaderName: string;
+    static signatureVersionName: string;
+    static signatureVersionValue: string;
+    static timestampKeyName: string;
+    static sessionHeaderKeyName: string;
+    sessionToken: string | null;
+    currentUser: NCMBUser | null;
+    storage: NCMBStorage | null;
+    constructor(applicationKey: string, clientKey: string);
+}
+export default NCMB;
+export { NCMBUser, NCMBObject, NCMBQuery, NCMBFile, NCMBAcl, NCMBRole, NCMBRequest, NCMBRelation, NCMBGeoPoint, NCMBInstallation, NCMBPush };

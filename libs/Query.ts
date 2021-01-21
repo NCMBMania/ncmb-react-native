@@ -1,6 +1,5 @@
 import NCMB, { NCMBUser, NCMBObject, NCMBRequest, NCMBRole, NCMBFile, NCMBGeoPoint, NCMBPush } from '../';
-import { NCMBResponse } from '../types/Misc';
-
+import { NCMBResponse, NCMBPointer } from '../types/Misc';
 class NCMBQuery {
   static ncmb: NCMB;
   

@@ -35,27 +35,45 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-var Request = /** @class */ (function () {
-    function Request(ncmb) {
-        this.ncmb = ncmb;
+var __1 = __importDefault(require(".."));
+var Signature_1 = __importDefault(require("./Signature"));
+var CONTENT_TYPE = 'Content-Type';
+var ContentType = {
+    Json: 'application/json',
+    Multi: 'multipart/form-data'
+};
+var HttpMethod = {
+    Get: 'GET',
+    Post: 'POST',
+    Put: 'PUT',
+    Delete: 'DELETE'
+};
+var NCMBRequest = /** @class */ (function () {
+    function NCMBRequest() {
+        this.date = null;
     }
-    Request.prototype.exec = function (method, url, bodies, file) {
+    NCMBRequest.prototype.exec = function (method, url, signature, bodies, file) {
         if (bodies === void 0) { bodies = null; }
         if (file === void 0) { file = null; }
-        return __awaiter(this, void 0, Response, function () {
+        return __awaiter(this, void 0, void 0, function () {
             var body, headers;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         body = bodies ? JSON.stringify(bodies) : null;
-                        headers = this.headers();
+                        headers = this.headers(signature);
+                        if (!file) {
+                            headers.set(CONTENT_TYPE, ContentType.Json);
+                        }
                         if (!body) return [3 /*break*/, 2];
                         return [4 /*yield*/, fetch(url, { method: method, headers: headers, body: body })];
                     case 1: return [2 /*return*/, _a.sent()];
                     case 2:
                         if (!file) return [3 /*break*/, 4];
-                        headers['Content-Type'] = 'multipart/form-data';
                         return [4 /*yield*/, fetch(url, { method: method, headers: headers, body: file })];
                     case 3: return [2 /*return*/, _a.sent()];
                     case 4: return [4 /*yield*/, fetch(url, { method: method, headers: headers })];
@@ -64,19 +82,19 @@ var Request = /** @class */ (function () {
             });
         });
     };
-    Request.prototype.headers = function () {
-        var headers = {};
-        headers[this.ncmb.applicationKeyName] = this.ncmb.applicationKey;
-        headers[this.ncmb.timestampKeyName] = this.date.toISOString();
-        headers[this.ncmb.signatureHeaderName] = signature;
-        headers['Content-Type'] = 'application/json';
-        if (this.ncmb.sessionToken)
-            headers['X-NCMB-Apps-Session-Token'] = this.ncmb.sessionToken;
+    NCMBRequest.prototype.headers = function (signature) {
+        var headers = new Headers();
+        headers.set(__1.default.applicationKeyName, NCMBRequest.ncmb.applicationKey);
+        headers.set(__1.default.timestampKeyName, this.date.toISOString());
+        headers.set(__1.default.signatureHeaderName, signature);
+        if (NCMBRequest.ncmb.sessionToken) {
+            headers.set(__1.default.sessionHeaderKeyName, NCMBRequest.ncmb.sessionToken);
+        }
         return headers;
     };
-    Request.prototype.url = function (path, queries) {
+    NCMBRequest.prototype.url = function (path, queries) {
         if (queries === void 0) { queries = null; }
-        var url = "https://" + this.ncmb.fqdn + path;
+        var url = "https://" + __1.default.fqdn + path;
         if (queries == null)
             return url;
         var query = Object.keys(queries).map(function (k) {
@@ -89,55 +107,61 @@ var Request = /** @class */ (function () {
         }).join('&');
         return url + "?" + query;
     };
-    Request.prototype.post = function (path, file) {
+    NCMBRequest.prototype.post = function (path, file) {
         if (file === void 0) { file = null; }
-        return __awaiter(this, void 0, Response, function () {
-            var s, method;
+        return __awaiter(this, void 0, void 0, function () {
+            var s, method, signature;
             return __generator(this, function (_a) {
-                s = this.ncmb.Signature();
-                method = 'POST';
+                s = new Signature_1.default;
+                method = HttpMethod.Post;
                 this.date = new Date();
                 signature = s.generate(method, path, this.date);
-                return [2 /*return*/, this.exec(method, this.url(path), this.body, file)];
+                return [2 /*return*/, this.exec(method, this.url(path), signature, this.body, file)];
             });
         });
     };
-    Request.prototype.put = function (path) {
-        return __awaiter(this, void 0, Response, function () {
-            var s, method;
+    NCMBRequest.prototype.put = function (path) {
+        return __awaiter(this, void 0, void 0, function () {
+            var s, method, signature;
             return __generator(this, function (_a) {
-                s = this.ncmb.Signature();
-                method = 'PUT';
+                s = new Signature_1.default;
+                method = HttpMethod.Put;
                 this.date = new Date();
                 signature = s.generate(method, path, this.date);
-                return [2 /*return*/, this.exec(method, this.url(path), this.body)];
+                return [2 /*return*/, this.exec(method, this.url(path), signature, this.body)];
             });
         });
     };
-    Request.prototype.get = function (path, queries) {
-        return __awaiter(this, void 0, Response, function () {
-            var s, method;
+    NCMBRequest.prototype.get = function (path, queries) {
+        return __awaiter(this, void 0, void 0, function () {
+            var s, method, filteredQuery, key, signature;
             return __generator(this, function (_a) {
-                s = this.ncmb.Signature();
-                method = 'GET';
+                s = new Signature_1.default;
+                method = HttpMethod.Get;
                 this.date = new Date();
-                signature = s.generate(method, path, this.date, queries);
-                return [2 /*return*/, this.exec(method, this.url(path, queries))];
+                filteredQuery = {};
+                for (key in queries) {
+                    if (queries[key] && queries[key] !== '') {
+                        filteredQuery[key] = queries[key];
+                    }
+                }
+                signature = s.generate(method, path, this.date, filteredQuery);
+                return [2 /*return*/, this.exec(method, this.url(path, filteredQuery), signature)];
             });
         });
     };
-    Request.prototype.delete = function (path) {
-        return __awaiter(this, void 0, Response, function () {
-            var s, method;
+    NCMBRequest.prototype.delete = function (path) {
+        return __awaiter(this, void 0, void 0, function () {
+            var s, method, signature;
             return __generator(this, function (_a) {
-                s = this.ncmb.Signature();
-                method = 'DELETE';
+                s = new Signature_1.default;
+                method = HttpMethod.Delete;
                 this.date = new Date();
                 signature = s.generate(method, path, this.date);
-                return [2 /*return*/, this.exec(method, this.url(path))];
+                return [2 /*return*/, this.exec(method, this.url(path), signature)];
             });
         });
     };
-    return Request;
+    return NCMBRequest;
 }());
-exports.default = Request;
+exports.default = NCMBRequest;

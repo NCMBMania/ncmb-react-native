@@ -18,7 +18,7 @@ class NCMBRequest {
   static ncmb: NCMB;
   public body: any;
   public query: any;
-  public date: Date;
+  public date: Date | null = null;
 
   constructor() {
   }
@@ -41,7 +41,7 @@ class NCMBRequest {
   headers(signature: string): Headers {
     const headers: HeadersInit = new Headers();
     headers.set(NCMB.applicationKeyName, NCMBRequest.ncmb.applicationKey);
-    headers.set(NCMB.timestampKeyName, this.date.toISOString());
+    headers.set(NCMB.timestampKeyName, this.date!.toISOString());
     headers.set(NCMB.signatureHeaderName, signature);
     if(NCMBRequest.ncmb.sessionToken) {
       headers.set(NCMB.sessionHeaderKeyName, NCMBRequest.ncmb.sessionToken);

@@ -12,6 +12,25 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -49,91 +68,63 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var __1 = require("..");
-var NCMBRole = /** @class */ (function (_super) {
-    __extends(NCMBRole, _super);
-    function NCMBRole() {
-        var _this = _super.call(this, 'roles') || this;
-        _this.users = [];
-        _this.roles = [];
-        return _this;
+var __1 = __importStar(require("../"));
+var NCMBPush = /** @class */ (function (_super) {
+    __extends(NCMBPush, _super);
+    function NCMBPush() {
+        return _super.call(this, 'push') || this;
     }
-    NCMBRole.query = function () {
-        return new __1.NCMBQuery('roles');
+    NCMBPush.query = function () {
+        return new __1.NCMBQuery('push');
     };
-    NCMBRole.prototype.addUser = function (user) {
-        this.users.push(user);
-        return this;
+    NCMBPush.prototype.set = function (name, value) {
+        if (name === 'searchCondition' && value) {
+            if (value instanceof __1.NCMBQuery) {
+                return _super.prototype.set.call(this, name, value._where);
+            }
+            if (typeof value === 'object') {
+                return _super.prototype.set.call(this, name, value);
+            }
+            throw new Error('Search condition has to be NCMBQuery or object');
+        }
+        return _super.prototype.set.call(this, name, value);
     };
-    NCMBRole.prototype.addRole = function (role) {
-        this.roles.push(role);
-        return this;
-    };
-    NCMBRole.prototype.fetchUser = function () {
+    NCMBPush.prototype.save = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
+                if (!this.fields.deliveryTime && !this.fields.immediateDeliveryFlag) {
+                    throw new Error('Push has to set deliveryTime or immediateDeliveryFlag.');
+                }
+                if (!this.fields.target || !Array.isArray(this.fields.target)) {
+                    throw new Error('Push has to set target.');
+                }
+                return [2 /*return*/, _super.prototype.save.call(this)];
+            });
+        });
+    };
+    NCMBPush.open = function (deviceType, deviceToken, id) {
+        return __awaiter(this, void 0, void 0, function () {
+            var r, response, json;
+            return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.fetchRelated('User')];
-                    case 1: return [2 /*return*/, (_a.sent())];
+                    case 0:
+                        r = new __1.NCMBRequest;
+                        r.body = { deviceType: deviceType, deviceToken: deviceToken };
+                        return [4 /*yield*/, r.post("/" + __1.default.version + "/push/" + id + "/openNumber")];
+                    case 1:
+                        response = _a.sent();
+                        return [4 /*yield*/, response.json()];
+                    case 2:
+                        json = (_a.sent());
+                        if (json.code) {
+                            // エラー
+                            throw new Error(json.code + ": " + json.error);
+                        }
+                        return [2 /*return*/, !!json.updateDate];
                 }
             });
         });
     };
-    NCMBRole.prototype.fetchRole = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.fetchRelated('Role')];
-                    case 1: return [2 /*return*/, (_a.sent())];
-                }
-            });
-        });
-    };
-    NCMBRole.prototype.fetchRelated = function (key) {
-        return __awaiter(this, void 0, void 0, function () {
-            var query;
-            return __generator(this, function (_a) {
-                query = (key === 'User' ? __1.NCMBUser : NCMBRole).query();
-                return [2 /*return*/, query
-                        .relatedTo(this, "belong" + key)
-                        .fetchAll()];
-            });
-        });
-    };
-    NCMBRole.prototype.getObjects = function (name) {
-        if (name === 'User') {
-            return this.users;
-        }
-        else {
-            return this.roles;
-        }
-    };
-    NCMBRole.prototype.convert = function (name) {
-        var belongType = "belong" + name;
-        var json = {};
-        if (!json[belongType]) {
-            json[belongType] = {
-                '__op': 'AddRelation',
-                'objects': []
-            };
-        }
-        this.getObjects(name).forEach(function (obj) {
-            json[belongType].objects.push({
-                '__type': 'Pointer',
-                'className': name.toLowerCase(),
-                'objectId': obj.get('objectId')
-            });
-        });
-        return json[belongType];
-    };
-    NCMBRole.prototype.toJSON = function () {
-        var json = _super.prototype.toJSON.call(this);
-        if (this.users.length > 0)
-            json.belongUser = this.convert('User');
-        if (this.roles.length > 0)
-            json.belongRole = this.convert('Role');
-        return json;
-    };
-    return NCMBRole;
+    return NCMBPush;
 }(__1.NCMBObject));
-exports.default = NCMBRole;
+exports.default = NCMBPush;
