@@ -1,4 +1,4 @@
-import NCMB from "..";
+import NCMB from "../index";
 import { SignatureString } from '../types/Misc';
 
 const jsSHA = require('jssha');

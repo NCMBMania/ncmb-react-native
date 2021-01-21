@@ -55,7 +55,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var __1 = __importStar(require("../"));
+var index_1 = __importStar(require("../index"));
 var NCMBQuery = /** @class */ (function () {
     function NCMBQuery(name) {
         this._where = {};
@@ -236,10 +236,10 @@ var NCMBQuery = /** @class */ (function () {
     };
     NCMBQuery.prototype.relatedTo = function (obj, key) {
         var className;
-        if (obj instanceof __1.NCMBUser) {
+        if (obj instanceof index_1.NCMBUser) {
             className = 'user';
         }
-        else if (obj instanceof __1.NCMBRole) {
+        else if (obj instanceof index_1.NCMBRole) {
             className = 'role';
         }
         else {
@@ -302,7 +302,7 @@ var NCMBQuery = /** @class */ (function () {
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        r = new __1.NCMBRequest();
+                        r = new index_1.NCMBRequest();
                         _b.label = 1;
                     case 1:
                         _b.trys.push([1, 4, , 5]);
@@ -327,24 +327,24 @@ var NCMBQuery = /** @class */ (function () {
                         _loop_1 = function (params) {
                             var obj;
                             if (this_1.className === 'users') {
-                                obj = new __1.NCMBUser;
+                                obj = new index_1.NCMBUser;
                             }
                             else if (this_1.className === 'roles') {
-                                obj = new __1.NCMBRole;
+                                obj = new index_1.NCMBRole;
                             }
                             else if (this_1.className === 'files') {
-                                obj = new __1.NCMBFile;
+                                obj = new index_1.NCMBFile;
                             }
                             else if (this_1.className === 'push') {
-                                obj = new __1.NCMBPush;
+                                obj = new index_1.NCMBPush;
                             }
                             else {
-                                obj = new __1.NCMBObject(this_1.className);
+                                obj = new index_1.NCMBObject(this_1.className);
                             }
                             Object.keys(params).forEach(function (key) {
                                 if (_this._include && key === _this._include) {
                                     var pointer = params[key];
-                                    var child = new __1.NCMBObject(pointer.className);
+                                    var child = new index_1.NCMBObject(pointer.className);
                                     delete pointer.className;
                                     delete params[pointer.__type];
                                     child.sets(pointer);
@@ -373,10 +373,10 @@ var NCMBQuery = /** @class */ (function () {
     NCMBQuery.prototype.path = function () {
         var basePath = '';
         if (['users', 'roles', 'installations', 'files', 'push'].indexOf(this.className) > -1) {
-            basePath = "/" + __1.default.version + "/" + this.className;
+            basePath = "/" + index_1.default.version + "/" + this.className;
         }
         else {
-            basePath = "/" + __1.default.version + "/classes/" + this.className;
+            basePath = "/" + index_1.default.version + "/classes/" + this.className;
         }
         return basePath;
     };

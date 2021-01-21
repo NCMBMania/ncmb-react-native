@@ -1,6 +1,5 @@
-import NCMB, { NCMBQuery, NCMBObject } from '../';
-import { authData, NCMBResponse } from '../types/Misc';
-import { NCMBBasicLogin } from '../types/Misc';
+import NCMB, { NCMBQuery, NCMBObject } from '../index';
+import { authData, NCMBResponse, NCMBBasicLogin } from '../types/Misc';
 declare class NCMBUser extends NCMBObject {
     static ncmb: NCMB;
     constructor();

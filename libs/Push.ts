@@ -1,4 +1,4 @@
-import NCMB, { NCMBQuery, NCMBObject, NCMBRequest } from '../';
+import NCMB, { NCMBQuery, NCMBObject, NCMBRequest } from '../index';
 import { allowType, NCMBResponse } from '../types/Misc';
 
 class NCMBPush extends NCMBObject {

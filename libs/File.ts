@@ -1,4 +1,4 @@
-import NCMB, { NCMBQuery, NCMBObject, NCMBAcl, NCMBRequest } from '..';
+import NCMB, { NCMBQuery, NCMBObject, NCMBAcl, NCMBRequest } from '../index';
 import FormData from 'form-data';
 import { JsonObject, expoMediaFormat } from '../types/Misc';
 

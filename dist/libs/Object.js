@@ -54,12 +54,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-var __1 = __importStar(require("../"));
-var GeoPoint_1 = __importDefault(require("./GeoPoint"));
+var index_1 = __importStar(require("../index"));
 var NCMBObject = /** @class */ (function () {
     function NCMBObject(name) {
         this.fields = {};
@@ -72,7 +68,7 @@ var NCMBObject = /** @class */ (function () {
                 this.fields[name] = new Date(value);
                 break;
             case 'acl':
-                var acl = new __1.NCMBAcl;
+                var acl = new index_1.NCMBAcl;
                 acl.sets(value);
                 this.fields[name] = acl;
                 break;
@@ -82,7 +78,7 @@ var NCMBObject = /** @class */ (function () {
         }
         if (value && typeof value === 'object' && value.__type === 'GeoPoint') {
             value = value;
-            this.fields[name] = new GeoPoint_1.default(value.latitude, value.longitude);
+            this.fields[name] = new index_1.NCMBGeoPoint(value.latitude, value.longitude);
         }
         if (value && typeof value === 'object' && value.__type === 'Date') {
             this.fields[name] = new Date(value.iso);
@@ -147,7 +143,7 @@ var NCMBObject = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        r = new __1.NCMBRequest();
+                        r = new index_1.NCMBRequest();
                         return [4 /*yield*/, r.get(this.path(), {})];
                     case 1:
                         response = _a.sent();
@@ -170,7 +166,7 @@ var NCMBObject = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        r = new __1.NCMBRequest;
+                        r = new index_1.NCMBRequest;
                         r.body = this.fields;
                         _a.label = 1;
                     case 1:
@@ -260,7 +256,7 @@ var NCMBObject = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        r = new __1.NCMBRequest;
+                        r = new index_1.NCMBRequest;
                         r.body = this.toJSON();
                         _a.label = 1;
                     case 1:
@@ -289,10 +285,10 @@ var NCMBObject = /** @class */ (function () {
     NCMBObject.prototype.path = function () {
         var basePath = '';
         if (['users', 'roles', 'files', 'installations', 'push'].indexOf(this.className) > -1) {
-            basePath = "/" + __1.default.version + "/" + this.className;
+            basePath = "/" + index_1.default.version + "/" + this.className;
         }
         else {
-            basePath = "/" + __1.default.version + "/classes/" + this.className;
+            basePath = "/" + index_1.default.version + "/classes/" + this.className;
         }
         if (this.fields.objectId) {
             return basePath + "/" + this.fields.objectId;

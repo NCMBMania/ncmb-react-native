@@ -1,4 +1,4 @@
-import NCMB, { NCMBObject, NCMBRole, NCMBUser } from "..";
+import NCMB, { NCMBObject, NCMBRole, NCMBUser } from "../index";
 import { JsonObject, NCMBRelationFormat } from "../types/Misc";
 
 class NCMBRelation {

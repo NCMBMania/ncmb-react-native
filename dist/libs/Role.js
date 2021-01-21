@@ -49,7 +49,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var __1 = require("..");
+var index_1 = require("../index");
 var NCMBRole = /** @class */ (function (_super) {
     __extends(NCMBRole, _super);
     function NCMBRole() {
@@ -59,7 +59,7 @@ var NCMBRole = /** @class */ (function (_super) {
         return _this;
     }
     NCMBRole.query = function () {
-        return new __1.NCMBQuery('roles');
+        return new index_1.NCMBQuery('roles');
     };
     NCMBRole.prototype.addUser = function (user) {
         this.users.push(user);
@@ -93,7 +93,7 @@ var NCMBRole = /** @class */ (function (_super) {
         return __awaiter(this, void 0, void 0, function () {
             var query;
             return __generator(this, function (_a) {
-                query = (key === 'User' ? __1.NCMBUser : NCMBRole).query();
+                query = (key === 'User' ? index_1.NCMBUser : NCMBRole).query();
                 return [2 /*return*/, query
                         .relatedTo(this, "belong" + key)
                         .fetchAll()];
@@ -135,5 +135,5 @@ var NCMBRole = /** @class */ (function (_super) {
         return json;
     };
     return NCMBRole;
-}(__1.NCMBObject));
+}(index_1.NCMBObject));
 exports.default = NCMBRole;

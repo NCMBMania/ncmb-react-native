@@ -1,4 +1,4 @@
-import NCMB from '..';
+import NCMB from '../index';
 import NCMBSignature from './Signature';
 
 const CONTENT_TYPE = 'Content-Type';

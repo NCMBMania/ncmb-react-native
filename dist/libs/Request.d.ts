@@ -1,4 +1,4 @@
-import NCMB from '..';
+import NCMB from '../index';
 declare class NCMBRequest {
     static ncmb: NCMB;
     body: any;

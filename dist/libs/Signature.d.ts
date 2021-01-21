@@ -1,4 +1,4 @@
-import NCMB from "..";
+import NCMB from "../index";
 export default class Signature {
     static ncmb: NCMB;
     generate(method: string, path: string, timestamp?: Date, queries?: any): string;

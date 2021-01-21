@@ -39,7 +39,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var __1 = __importDefault(require(".."));
+var index_1 = __importDefault(require("../index"));
 var Signature_1 = __importDefault(require("./Signature"));
 var CONTENT_TYPE = 'Content-Type';
 var ContentType = {
@@ -84,17 +84,17 @@ var NCMBRequest = /** @class */ (function () {
     };
     NCMBRequest.prototype.headers = function (signature) {
         var headers = new Headers();
-        headers.set(__1.default.applicationKeyName, NCMBRequest.ncmb.applicationKey);
-        headers.set(__1.default.timestampKeyName, this.date.toISOString());
-        headers.set(__1.default.signatureHeaderName, signature);
+        headers.set(index_1.default.applicationKeyName, NCMBRequest.ncmb.applicationKey);
+        headers.set(index_1.default.timestampKeyName, this.date.toISOString());
+        headers.set(index_1.default.signatureHeaderName, signature);
         if (NCMBRequest.ncmb.sessionToken) {
-            headers.set(__1.default.sessionHeaderKeyName, NCMBRequest.ncmb.sessionToken);
+            headers.set(index_1.default.sessionHeaderKeyName, NCMBRequest.ncmb.sessionToken);
         }
         return headers;
     };
     NCMBRequest.prototype.url = function (path, queries) {
         if (queries === void 0) { queries = null; }
-        var url = "https://" + __1.default.fqdn + path;
+        var url = "https://" + index_1.default.fqdn + path;
         if (queries == null)
             return url;
         var query = Object.keys(queries).map(function (k) {

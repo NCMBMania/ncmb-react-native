@@ -1,4 +1,4 @@
-import NCMB, { NCMBObject, NCMBRole, NCMBUser } from "..";
+import NCMB, { NCMBObject, NCMBRole, NCMBUser } from "../index";
 import { NCMBRelationFormat } from "../types/Misc";
 declare class NCMBRelation {
     static ncmb: NCMB;

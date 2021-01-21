@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var __1 = require("..");
+var index_1 = require("../index");
 var NCMBAcl = /** @class */ (function () {
     function NCMBAcl() {
         this.fields = {};
@@ -36,7 +36,7 @@ var NCMBAcl = /** @class */ (function () {
         return this;
     };
     NCMBAcl.prototype.setsRoleAccess = function (roleName, access) {
-        var role = new __1.NCMBRole();
+        var role = new index_1.NCMBRole();
         role.set('roleName', roleName);
         if (access.read)
             this.setRoleReadAccess(role, true);
@@ -45,7 +45,7 @@ var NCMBAcl = /** @class */ (function () {
         return this;
     };
     NCMBAcl.prototype.setsUserAccess = function (key, access) {
-        var user = new __1.NCMBUser;
+        var user = new index_1.NCMBUser;
         user.set('objectId', key);
         if (access.read)
             this.setUserReadAccess(user, true);

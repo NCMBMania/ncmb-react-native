@@ -71,7 +71,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var __1 = __importStar(require(".."));
+var index_1 = __importStar(require("../index"));
 var form_data_1 = __importDefault(require("form-data"));
 var NCMBFile = /** @class */ (function (_super) {
     __extends(NCMBFile, _super);
@@ -79,15 +79,15 @@ var NCMBFile = /** @class */ (function (_super) {
         return _super.call(this, 'files') || this;
     }
     NCMBFile.query = function () {
-        return new __1.NCMBQuery('files');
+        return new index_1.NCMBQuery('files');
     };
-    NCMBFile.upload = function (fileName, fileData, contentType, acl) {
+    NCMBFile.upload = function (fileName, fileData, acl, contentType) {
         return __awaiter(this, void 0, void 0, function () {
             var r, form, response, json, file, e_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        r = new __1.NCMBRequest;
+                        r = new index_1.NCMBRequest;
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 4, , 5]);
@@ -106,7 +106,7 @@ var NCMBFile = /** @class */ (function (_super) {
                         else {
                             form.append('file', fileData);
                         }
-                        form.append('acl', JSON.stringify((acl || new __1.NCMBAcl).toJSON()));
+                        form.append('acl', JSON.stringify((acl || new index_1.NCMBAcl).toJSON()));
                         return [4 /*yield*/, r.post(NCMBFile.path(fileName), form)];
                     case 2:
                         response = _a.sent();
@@ -134,7 +134,7 @@ var NCMBFile = /** @class */ (function (_super) {
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        r = new __1.NCMBRequest;
+                        r = new index_1.NCMBRequest;
                         return [4 /*yield*/, r.get(this.path())];
                     case 1:
                         response = _b.sent();
@@ -166,11 +166,11 @@ var NCMBFile = /** @class */ (function (_super) {
         });
     };
     NCMBFile.path = function (fileName) {
-        return "/" + __1.default.version + "/files/" + fileName;
+        return "/" + index_1.default.version + "/files/" + fileName;
     };
     NCMBFile.prototype.path = function () {
-        return "/" + __1.default.version + "/files/" + this.get('fileName');
+        return "/" + index_1.default.version + "/files/" + this.get('fileName');
     };
     return NCMBFile;
-}(__1.NCMBObject));
+}(index_1.NCMBObject));
 exports.default = NCMBFile;

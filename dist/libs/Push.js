@@ -68,18 +68,18 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var __1 = __importStar(require("../"));
+var index_1 = __importStar(require("../index"));
 var NCMBPush = /** @class */ (function (_super) {
     __extends(NCMBPush, _super);
     function NCMBPush() {
         return _super.call(this, 'push') || this;
     }
     NCMBPush.query = function () {
-        return new __1.NCMBQuery('push');
+        return new index_1.NCMBQuery('push');
     };
     NCMBPush.prototype.set = function (name, value) {
         if (name === 'searchCondition' && value) {
-            if (value instanceof __1.NCMBQuery) {
+            if (value instanceof index_1.NCMBQuery) {
                 return _super.prototype.set.call(this, name, value._where);
             }
             if (typeof value === 'object') {
@@ -108,9 +108,9 @@ var NCMBPush = /** @class */ (function (_super) {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        r = new __1.NCMBRequest;
+                        r = new index_1.NCMBRequest;
                         r.body = { deviceType: deviceType, deviceToken: deviceToken };
-                        return [4 /*yield*/, r.post("/" + __1.default.version + "/push/" + id + "/openNumber")];
+                        return [4 /*yield*/, r.post("/" + index_1.default.version + "/push/" + id + "/openNumber")];
                     case 1:
                         response = _a.sent();
                         return [4 /*yield*/, response.json()];
@@ -126,5 +126,5 @@ var NCMBPush = /** @class */ (function (_super) {
         });
     };
     return NCMBPush;
-}(__1.NCMBObject));
+}(index_1.NCMBObject));
 exports.default = NCMBPush;

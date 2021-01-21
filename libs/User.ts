@@ -1,7 +1,6 @@
-import NCMB, { NCMBQuery, NCMBObject, NCMBRequest } from '../';
+import NCMB, { NCMBQuery, NCMBObject, NCMBRequest } from '../index';
 import { v4 as uuidv4 } from 'uuid';
-import { authData, NCMBResponse } from '../types/Misc';
-import { NCMBBasicLogin } from '../types/Misc';
+import { authData, NCMBResponse, NCMBBasicLogin } from '../types/Misc';
 
 class NCMBUser extends NCMBObject {
   static ncmb: NCMB;

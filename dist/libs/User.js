@@ -68,7 +68,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var __1 = __importStar(require("../"));
+var index_1 = __importStar(require("../index"));
 var uuid_1 = require("uuid");
 var NCMBUser = /** @class */ (function (_super) {
     __extends(NCMBUser, _super);
@@ -76,7 +76,7 @@ var NCMBUser = /** @class */ (function (_super) {
         return _super.call(this, 'users') || this;
     }
     NCMBUser.query = function () {
-        return new __1.NCMBQuery('users');
+        return new index_1.NCMBQuery('users');
     };
     NCMBUser.prototype.signUpWith = function (provider, authData) {
         return __awaiter(this, void 0, void 0, function () {
@@ -104,7 +104,7 @@ var NCMBUser = /** @class */ (function (_super) {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        r = new __1.NCMBRequest();
+                        r = new index_1.NCMBRequest();
                         r.body = this.fields;
                         _a.label = 1;
                     case 1:
@@ -137,9 +137,9 @@ var NCMBUser = /** @class */ (function (_super) {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        r = new __1.NCMBRequest;
+                        r = new index_1.NCMBRequest;
                         r.body = { mailAddress: mailAddress };
-                        return [4 /*yield*/, r.post("/" + __1.default.version + "/requestMailAddressUserEntry")];
+                        return [4 /*yield*/, r.post("/" + index_1.default.version + "/requestMailAddressUserEntry")];
                     case 1:
                         response = _a.sent();
                         return [4 /*yield*/, response.json()];
@@ -160,9 +160,9 @@ var NCMBUser = /** @class */ (function (_super) {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        r = new __1.NCMBRequest;
+                        r = new index_1.NCMBRequest;
                         r.body = { mailAddress: mailAddress };
-                        return [4 /*yield*/, r.post("/" + __1.default.version + "/requestPasswordReset")];
+                        return [4 /*yield*/, r.post("/" + index_1.default.version + "/requestPasswordReset")];
                     case 1:
                         response = _a.sent();
                         return [4 /*yield*/, response.json()];
@@ -183,7 +183,7 @@ var NCMBUser = /** @class */ (function (_super) {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        r = new __1.NCMBRequest();
+                        r = new index_1.NCMBRequest();
                         r.body = {
                             authData: {
                                 anonymous: {
@@ -211,7 +211,7 @@ var NCMBUser = /** @class */ (function (_super) {
         });
     };
     NCMBUser.path = function () {
-        return "/" + __1.default.version + "/users";
+        return "/" + index_1.default.version + "/users";
     };
     NCMBUser.currentUser = function () {
         return __awaiter(this, void 0, void 0, function () {
@@ -261,8 +261,8 @@ var NCMBUser = /** @class */ (function (_super) {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        r = new __1.NCMBRequest;
-                        return [4 /*yield*/, r.get("/" + __1.default.version + "/login", query)];
+                        r = new index_1.NCMBRequest;
+                        return [4 /*yield*/, r.get("/" + index_1.default.version + "/login", query)];
                     case 1:
                         response = _a.sent();
                         return [4 /*yield*/, response.json()];
@@ -317,5 +317,5 @@ var NCMBUser = /** @class */ (function (_super) {
         });
     };
     return NCMBUser;
-}(__1.NCMBObject));
+}(index_1.NCMBObject));
 exports.default = NCMBUser;

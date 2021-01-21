@@ -1,5 +1,4 @@
-import NCMB, { NCMBQuery, NCMBRequest, NCMBUser, NCMBAcl, NCMBRole, NCMBFile, NCMBInstallation, NCMBPush } from '../';
-import NCMBGeoPoint from './GeoPoint';
+import NCMB, { NCMBRequest, NCMBUser, NCMBAcl, NCMBRole, NCMBFile, NCMBInstallation, NCMBPush, NCMBGeoPoint } from '../index';
 import { NCMBResponse, JsonObject, allowType, NCMBAclFormat, NCMBDate, NCMBGeoPointFormat } from '../types/Misc'
 class NCMBObject {
   static ncmb: NCMB;

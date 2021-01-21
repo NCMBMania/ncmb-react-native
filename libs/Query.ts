@@ -1,4 +1,4 @@
-import NCMB, { NCMBUser, NCMBObject, NCMBRequest, NCMBRole, NCMBFile, NCMBGeoPoint, NCMBPush } from '../';
+import NCMB, { NCMBUser, NCMBObject, NCMBRequest, NCMBRole, NCMBFile, NCMBGeoPoint, NCMBPush } from '../index';
 import { NCMBResponse, NCMBPointer } from '../types/Misc';
 class NCMBQuery {
   static ncmb: NCMB;

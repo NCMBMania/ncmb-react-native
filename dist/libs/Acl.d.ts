@@ -1,4 +1,4 @@
-import { NCMBUser, NCMBRole } from '..';
+import { NCMBUser, NCMBRole } from '../index';
 import { NCMBAclFormat } from '../types/Misc';
 declare class NCMBAcl {
     private fields;

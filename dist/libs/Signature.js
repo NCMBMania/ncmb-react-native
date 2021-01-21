@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var __1 = __importDefault(require(".."));
+var index_1 = __importDefault(require("../index"));
 var jsSHA = require('jssha');
 var Signature = /** @class */ (function () {
     function Signature() {
@@ -14,7 +14,7 @@ var Signature = /** @class */ (function () {
         var signatureString = this.generateSignatureString(timestamp, queries);
         var ary = [];
         ary.push(method);
-        ary.push(__1.default.fqdn);
+        ary.push(index_1.default.fqdn);
         ary.push(path);
         ary.push(signatureString);
         var baseString = ary.join("\n");
@@ -25,10 +25,10 @@ var Signature = /** @class */ (function () {
     };
     Signature.prototype.generateSignatureString = function (timestamp, queries) {
         var hash = {};
-        hash[__1.default.signatureMethodName] = __1.default.signatureMethodValue;
-        hash[__1.default.signatureVersionName] = __1.default.signatureVersionValue;
-        hash[__1.default.timestampKeyName] = timestamp.toISOString();
-        hash[__1.default.applicationKeyName] = Signature.ncmb.applicationKey;
+        hash[index_1.default.signatureMethodName] = index_1.default.signatureMethodValue;
+        hash[index_1.default.signatureVersionName] = index_1.default.signatureVersionValue;
+        hash[index_1.default.timestampKeyName] = timestamp.toISOString();
+        hash[index_1.default.applicationKeyName] = Signature.ncmb.applicationKey;
         Object.keys(queries).forEach(function (k) {
             if (typeof queries[k] === 'object') {
                 hash[k] = encodeURIComponent(JSON.stringify(queries[k]));

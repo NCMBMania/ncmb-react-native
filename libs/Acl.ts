@@ -1,4 +1,4 @@
-import {NCMBUser, NCMBRole} from '..'
+import {NCMBUser, NCMBRole} from '../index'
 import { NCMBAclFormat, NCMBAclFormatKey } from '../types/Misc';
 
 class NCMBAcl {

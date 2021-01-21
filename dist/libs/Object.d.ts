@@ -1,4 +1,4 @@
-import NCMB, { NCMBUser, NCMBRole, NCMBFile, NCMBInstallation, NCMBPush } from '../';
+import NCMB, { NCMBUser, NCMBRole, NCMBFile, NCMBInstallation, NCMBPush } from '../index';
 import { JsonObject, allowType } from '../types/Misc';
 declare class NCMBObject {
     static ncmb: NCMB;

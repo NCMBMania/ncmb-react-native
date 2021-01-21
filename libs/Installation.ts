@@ -1,11 +1,11 @@
-import NCMB, { NCMBQuery, NCMBObject, NCMBRequest } from '../';
+import NCMB, { NCMBQuery, NCMBObject, NCMBRequest } from '../index';
 class NCMBInstallation extends NCMBObject {
   static ncmb: NCMB;
   constructor() {
     super('installations');
     this.fields = {
       sdk: 'React Native',
-      sdkVersion: '2.0.4'
+      sdkVersion: '2.0.5'
     };
   }
   
