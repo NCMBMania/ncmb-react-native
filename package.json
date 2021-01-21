@@ -5,6 +5,7 @@
     "buffer": "^5.4.3",
     "file-type": "^16.2.0",
     "jssha": "^2.3.1",
+    "form-data": "^3.0.0",
     "uuid": "^8.3.2"
   },
   "deprecated": false,
@@ -14,7 +15,6 @@
     "@types/expect": "^24.3.0",
     "@types/mocha": "^8.2.0",
     "chai": "^4.2.0",
-    "form-data": "^3.0.0",
     "https-proxy-agent": "^3.0.1",
     "isomorphic-fetch": "^3.0.0",
     "mocha": "^8.2.1",
@@ -26,10 +26,10 @@
     "@types/chai": "^4.2.14"
   },
   "license": "MIT",
-  "main": "index.ts",
+  "main": "dist/index.js",
   "name": "ncmb-react-native",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "version": "2.0.0"
+  "version": "2.0.1"
 }
