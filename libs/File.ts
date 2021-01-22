@@ -41,7 +41,7 @@ class NCMBFile extends NCMBObject {
     }
   }
 
-  async download(fileType?: string = 'text'): Promise<any> {
+  async download(fileType: string = 'text'): Promise<any> {
     const r = new NCMBRequest;
     const response = await r.get(this.path());
     if (response.status > 400) {
@@ -63,7 +63,7 @@ class NCMBFile extends NCMBObject {
     }
   }
 
-  private getDataUri(blob) {
+  private getDataUri(blob: Blob) {
     return new Promise((res, _) => {
       const reader = new FileReader();
       reader.onloadend = () => {

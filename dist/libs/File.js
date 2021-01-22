@@ -131,21 +131,21 @@ var NCMBFile = /** @class */ (function (_super) {
             });
         });
     };
-    NCMBFile.prototype.download = function (binary) {
-        if (binary === void 0) { binary = false; }
+    NCMBFile.prototype.download = function (fileType) {
+        if (fileType === void 0) { fileType = 'text'; }
         return __awaiter(this, void 0, void 0, function () {
-            var r, response, json, _a;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            var r, response, json, _a, _b;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
                     case 0:
                         r = new index_1.NCMBRequest;
                         return [4 /*yield*/, r.get(this.path())];
                     case 1:
-                        response = _b.sent();
+                        response = _c.sent();
                         if (!(response.status > 400)) return [3 /*break*/, 3];
                         return [4 /*yield*/, response.json()];
                     case 2:
-                        json = _b.sent();
+                        json = _c.sent();
                         if (json.code) {
                             // エラー
                             throw new Error(json.code + ": " + json.error);
@@ -153,20 +153,36 @@ var NCMBFile = /** @class */ (function (_super) {
                         else {
                             throw new Error("Server error " + response.status);
                         }
-                        _b.label = 3;
+                        _c.label = 3;
                     case 3:
-                        if (!binary) return [3 /*break*/, 5];
+                        _a = fileType.toUpperCase();
+                        switch (_a) {
+                            case 'TEXT': return [3 /*break*/, 4];
+                            case 'BINARY': return [3 /*break*/, 6];
+                            case 'DATAURL': return [3 /*break*/, 8];
+                        }
+                        return [3 /*break*/, 11];
+                    case 4: return [4 /*yield*/, response.text()];
+                    case 5: return [2 /*return*/, _c.sent()];
+                    case 6: return [4 /*yield*/, response.blob()];
+                    case 7: return [2 /*return*/, _c.sent()];
+                    case 8:
+                        _b = this.getDataUri;
                         return [4 /*yield*/, response.blob()];
-                    case 4:
-                        _a = _b.sent();
-                        return [3 /*break*/, 7];
-                    case 5: return [4 /*yield*/, response.text()];
-                    case 6:
-                        _a = _b.sent();
-                        _b.label = 7;
-                    case 7: return [2 /*return*/, _a];
+                    case 9: return [4 /*yield*/, _b.apply(this, [_c.sent()])];
+                    case 10: return [2 /*return*/, _c.sent()];
+                    case 11: return [2 /*return*/];
                 }
             });
+        });
+    };
+    NCMBFile.prototype.getDataUri = function (blob) {
+        return new Promise(function (res, _) {
+            var reader = new FileReader();
+            reader.onloadend = function () {
+                res(reader.result);
+            };
+            reader.readAsDataURL(blob);
         });
     };
     NCMBFile.path = function (fileName) {

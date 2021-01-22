@@ -6,7 +6,8 @@ declare class NCMBFile extends NCMBObject {
     constructor();
     static query(): NCMBQuery;
     static upload(fileName: string, fileData: string | expoMediaFormat | Buffer, acl?: NCMBAcl, contentType?: string | null): Promise<NCMBFile>;
-    download(binary?: boolean): Promise<any>;
+    download(fileType?: string): Promise<any>;
+    private getDataUri;
     static path(fileName: string): string;
     path(): string;
 }
