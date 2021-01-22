@@ -83,35 +83,39 @@ var NCMBFile = /** @class */ (function (_super) {
     };
     NCMBFile.upload = function (fileName, fileData, acl, contentType) {
         return __awaiter(this, void 0, void 0, function () {
-            var r, form, response, json, file, e_1;
+            var r, form, file_1, blob, response, json, file, e_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         r = new index_1.NCMBRequest;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 4, , 5]);
+                        _a.trys.push([1, 9, , 10]);
                         form = new form_data_1.default();
-                        if (fileData instanceof Buffer) {
-                            contentType = contentType || 'application/octet-stream';
-                            form.append('file', fileData, { contentType: contentType });
-                        }
-                        else if (typeof fileData === 'object') {
-                            form.append('file', {
-                                name: fileName,
-                                type: fileData.type,
-                                uri: fileData.uri
-                            });
-                        }
-                        else {
-                            form.append('file', fileData);
-                        }
+                        if (!(fileData instanceof Buffer)) return [3 /*break*/, 2];
+                        contentType = contentType || 'application/octet-stream';
+                        form.append('file', fileData, { contentType: contentType });
+                        return [3 /*break*/, 6];
+                    case 2:
+                        if (!(typeof fileData === 'object' && fileData.uri)) return [3 /*break*/, 5];
+                        return [4 /*yield*/, fetch(fileData.uri)];
+                    case 3:
+                        file_1 = _a.sent();
+                        return [4 /*yield*/, file_1.blob()];
+                    case 4:
+                        blob = _a.sent();
+                        form.append('file', blob);
+                        return [3 /*break*/, 6];
+                    case 5:
+                        form.append('file', fileData);
+                        _a.label = 6;
+                    case 6:
                         form.append('acl', JSON.stringify((acl || new index_1.NCMBAcl).toJSON()));
                         return [4 /*yield*/, r.post(NCMBFile.path(fileName), form)];
-                    case 2:
+                    case 7:
                         response = _a.sent();
                         return [4 /*yield*/, response.json()];
-                    case 3:
+                    case 8:
                         json = _a.sent();
                         if (json.code) {
                             // エラー
@@ -119,10 +123,10 @@ var NCMBFile = /** @class */ (function (_super) {
                         }
                         file = new NCMBFile;
                         return [2 /*return*/, file.sets(json)];
-                    case 4:
+                    case 9:
                         e_1 = _a.sent();
                         throw e_1;
-                    case 5: return [2 /*return*/];
+                    case 10: return [2 /*return*/];
                 }
             });
         });

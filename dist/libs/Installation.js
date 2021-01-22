@@ -56,7 +56,7 @@ var NCMBInstallation = /** @class */ (function (_super) {
         var _this = _super.call(this, 'installations') || this;
         _this.fields = {
             sdk: 'React Native',
-            sdkVersion: '2.0.4'
+            sdkVersion: '2.0.5'
         };
         return _this;
     }
