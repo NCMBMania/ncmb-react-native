@@ -41,7 +41,7 @@ class NCMBFile extends NCMBObject {
     }
   }
 
-  async download(binary: boolean = false): Promise<any> {
+  async download(fileType?: string = 'text'): Promise<any> {
     const r = new NCMBRequest;
     const response = await r.get(this.path());
     if (response.status > 400) {
@@ -53,9 +53,25 @@ class NCMBFile extends NCMBObject {
         throw new Error(`Server error ${response.status}`);
       }
     }
-    return binary ? await response.blob() : await response.text();
+    switch (fileType.toUpperCase()) {
+      case 'TEXT':
+        return await response.text();
+      case 'BINARY':
+        return await response.blob();
+      case 'DATAURL':
+        return await this.getDataUri(await response.blob());
+    }
   }
 
+  private getDataUri(blob) {
+    return new Promise((res, _) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        res(reader.result);
+      }
+      reader.readAsDataURL(blob);
+    });
+  }
   static path(fileName: string): string {
     return `/${NCMB.version}/files/${fileName}`;
   }
