@@ -67,7 +67,7 @@ class NCMBUser extends NCMBObject {
     return !!json.createDate;
   }
   
-  static async loginAsAnonymous(uuid?: string): Promise<NCMBUser> {
+  static async loginAsAnonymous(uuid?: string | null): Promise<NCMBUser> {
     const r = new NCMBRequest();
     r.body = {
       authData: {
