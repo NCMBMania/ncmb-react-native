@@ -20,7 +20,9 @@ class NCMBFile extends NCMBObject {
       if (fileData instanceof Buffer) {
         contentType = contentType || 'application/octet-stream';
         form.append('file', fileData, { contentType });
-      } else if (typeof fileData === 'object' && fileData.uri) {
+      } else if (typeof fileData === 'object' && fileData.uri.match(/^file:\/\//)) {
+        form.append('file', fileData);
+      } else if (typeof fileData === 'object' && fileData.uri.match(/^data:/)) {
         const file = await fetch(fileData.uri);
         const blob = await file.blob();
         form.append('file', blob);

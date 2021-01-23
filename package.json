@@ -29,7 +29,8 @@
   "main": "dist/index.js",
   "name": "ncmb-react-native",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rm -Rf dist && tsc"
   },
-  "version": "2.0.7"
+  "version": "2.0.10"
 }

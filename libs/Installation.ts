@@ -5,7 +5,7 @@ class NCMBInstallation extends NCMBObject {
     super('installations');
     this.fields = {
       sdk: 'React Native',
-      sdkVersion: '2.0.5'
+      sdkVersion: '2.0.10'
     };
   }
   
