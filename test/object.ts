@@ -1,4 +1,5 @@
 import { describe, it, before } from 'mocha';
+
 import { assert } from 'chai';
 import NCMB, { NCMBObject, NCMBGeoPoint } from '../index';
 import config from './config.json';

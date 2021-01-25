@@ -8,7 +8,7 @@ declare class NCMBUser extends NCMBObject {
     signUpByAccount(): Promise<boolean>;
     static requestSignUpEmail(mailAddress: string): Promise<boolean>;
     static requestPasswordReset(mailAddress: string): Promise<boolean>;
-    static loginAsAnonymous(): Promise<NCMBUser>;
+    static loginAsAnonymous(uuid?: string | null): Promise<NCMBUser>;
     static path(): string;
     static currentUser(): Promise<NCMBUser | null>;
     static login(userName: string, password: string): Promise<NCMBUser>;

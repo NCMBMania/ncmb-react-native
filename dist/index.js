@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.NCMBPush = exports.NCMBInstallation = exports.NCMBGeoPoint = exports.NCMBRelation = exports.NCMBRequest = exports.NCMBRole = exports.NCMBAcl = exports.NCMBFile = exports.NCMBQuery = exports.NCMBObject = exports.NCMBUser = void 0;
+exports.NCMBScript = exports.NCMBPush = exports.NCMBInstallation = exports.NCMBGeoPoint = exports.NCMBRelation = exports.NCMBRequest = exports.NCMBRole = exports.NCMBAcl = exports.NCMBFile = exports.NCMBQuery = exports.NCMBObject = exports.NCMBUser = void 0;
 var Object_1 = __importDefault(require("./libs/Object"));
 exports.NCMBObject = Object_1.default;
 var Query_1 = __importDefault(require("./libs/Query"));
@@ -27,6 +27,8 @@ var Installation_1 = __importDefault(require("./libs/Installation"));
 exports.NCMBInstallation = Installation_1.default;
 var Push_1 = __importDefault(require("./libs/Push"));
 exports.NCMBPush = Push_1.default;
+var Script_1 = __importDefault(require("./libs/Script"));
+exports.NCMBScript = Script_1.default;
 var NCMB = /** @class */ (function () {
     function NCMB(applicationKey, clientKey) {
         this.sessionToken = null;
@@ -43,8 +45,10 @@ var NCMB = /** @class */ (function () {
         Signature_1.default.ncmb = this;
         Installation_1.default.ncmb = this;
         Push_1.default.ncmb = this;
+        Script_1.default.ncmb = this;
     }
     NCMB.fqdn = 'mbaas.api.nifcloud.com';
+    NCMB.fqdn_script = 'script.mbaas.api.nifcloud.com';
     NCMB.version = '2013-09-01';
     NCMB.applicationKeyName = 'X-NCMB-Application-Key';
     NCMB.signatureMethodName = 'SignatureMethod';

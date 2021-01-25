@@ -177,7 +177,7 @@ var NCMBUser = /** @class */ (function (_super) {
             });
         });
     };
-    NCMBUser.loginAsAnonymous = function () {
+    NCMBUser.loginAsAnonymous = function (uuid) {
         return __awaiter(this, void 0, void 0, function () {
             var r, response, json, e_2;
             return __generator(this, function (_a) {
@@ -187,7 +187,7 @@ var NCMBUser = /** @class */ (function (_super) {
                         r.body = {
                             authData: {
                                 anonymous: {
-                                    id: uuid_1.v4()
+                                    id: uuid || uuid_1.v4()
                                 }
                             }
                         };

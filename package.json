@@ -3,8 +3,8 @@
   "bundleDependencies": false,
   "dependencies": {
     "buffer": "^5.4.3",
-    "jssha": "^2.3.1",
     "form-data": "^3.0.0",
+    "jssha": "^2.3.1",
     "uuid": "^8.3.2"
   },
   "deprecated": false,
@@ -16,7 +16,6 @@
     "@types/mocha": "^8.2.0",
     "@types/uuid": "^8.3.0",
     "chai": "^4.2.0",
-    "https-proxy-agent": "^3.0.1",
     "isomorphic-fetch": "^3.0.0",
     "mocha": "^8.2.1",
     "node-localstorage": "^2.1.6",
@@ -29,8 +28,9 @@
   "main": "dist/index.js",
   "name": "ncmb-react-native",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test:object": "ts-mocha --require test/init.js test/object.ts",
+    "test:script": "ts-mocha --require test/init.js test/script.ts",
     "build": "rm -Rf dist && tsc"
   },
-  "version": "2.0.11"
+  "version": "2.0.13"
 }

@@ -5,12 +5,13 @@ const jsSHA = require('jssha');
 
 export default class Signature {
   static ncmb: NCMB;
-  
+  public script: boolean = false;
+
   generate(method: string, path: string, timestamp: Date = new Date(), queries: any = {}): string{
     const signatureString = this.generateSignatureString(timestamp, queries);
     const ary :string[] = [];
     ary.push(method);
-    ary.push(NCMB.fqdn);
+    ary.push(this.script ? NCMB.fqdn_script : NCMB.fqdn);
     ary.push(path);
     ary.push(signatureString);
     const baseString :string = ary.join("\n");

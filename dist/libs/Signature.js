@@ -7,6 +7,7 @@ var index_1 = __importDefault(require("../index"));
 var jsSHA = require('jssha');
 var Signature = /** @class */ (function () {
     function Signature() {
+        this.script = false;
     }
     Signature.prototype.generate = function (method, path, timestamp, queries) {
         if (timestamp === void 0) { timestamp = new Date(); }
@@ -14,7 +15,7 @@ var Signature = /** @class */ (function () {
         var signatureString = this.generateSignatureString(timestamp, queries);
         var ary = [];
         ary.push(method);
-        ary.push(index_1.default.fqdn);
+        ary.push(this.script ? index_1.default.fqdn_script : index_1.default.fqdn);
         ary.push(path);
         ary.push(signatureString);
         var baseString = ary.join("\n");

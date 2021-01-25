@@ -1,5 +1,6 @@
 import NCMB from '../index';
 import NCMBSignature from './Signature';
+// import { HttpMethod } from '../types/Misc';
 
 const CONTENT_TYPE = 'Content-Type';
 const ContentType = {
@@ -19,6 +20,8 @@ class NCMBRequest {
   public body: any;
   public query: any;
   public date: Date | null = null;
+  public addHeaders: {[s: string]: string} = {};
+  public script: boolean = false;
 
   constructor() {
   }
@@ -28,6 +31,11 @@ class NCMBRequest {
     const headers = this.headers(signature);
     if (!file) {
       headers.set(CONTENT_TYPE, ContentType.Json);
+    }
+    if (Object.keys(this.addHeaders).length > 0) {
+      for (const key in this.addHeaders) {
+        headers.set(key, this.addHeaders[key]);
+      }
     }
     if (body) {
       return await fetch(url, { method, headers, body });
@@ -50,7 +58,7 @@ class NCMBRequest {
   }
   
   url(path: string, queries: any = null): string {
-    const url = `https://${NCMB.fqdn}${path}`;
+    const url = `https://${this.script ? NCMB.fqdn_script : NCMB.fqdn}${path}`;
     if (queries == null) return url;
     const query = Object.keys(queries).map(k => {
       if (typeof queries[k] === 'object') {
@@ -64,6 +72,7 @@ class NCMBRequest {
   
   async post(path: string, file: any = null): Promise<Response> {
     const s = new NCMBSignature;
+    s.script = this.script;
     const method = HttpMethod.Post;
     this.date = new Date();
     const signature = s.generate(method, path, this.date);
@@ -72,28 +81,36 @@ class NCMBRequest {
 
   async put(path: string): Promise<Response> {
     const s = new NCMBSignature;
+    s.script = this.script;
     const method = HttpMethod.Put;
     this.date = new Date();
     const signature = s.generate(method, path, this.date);
     return this.exec(method, this.url(path), signature, this.body);
   }
 
-  async get(path: string, queries?: any): Promise<Response> {
-    const s = new NCMBSignature;
-    const method = HttpMethod.Get;
-    this.date = new Date();
+  queries(queries: any): {[key: string]: string} {
     const filteredQuery: {[key: string]: string} = {};
     for (const key in queries) {
       if (queries[key] && queries[key] !== '') {
         filteredQuery[key] = queries[key];
       }
     }
-    const signature = s.generate(method, path, this.date, filteredQuery);
-    return this.exec(method, this.url(path, filteredQuery), signature);
+    return filteredQuery;
+  }
+
+  async get(path: string, queries?: any): Promise<Response> {
+    const s = new NCMBSignature;
+    s.script = this.script;
+    const method = HttpMethod.Get;
+    this.date = new Date();
+    const q = this.queries(queries);
+    const signature = s.generate(method, path, this.date, q);
+    return this.exec(method, this.url(path, q), signature);
   }
   
   async delete(path: string): Promise<Response> {
     const s = new NCMBSignature;
+    s.script = this.script;
     const method = HttpMethod.Delete;
     this.date = new Date();
     const signature = s.generate(method, path, this.date);

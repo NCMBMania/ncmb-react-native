@@ -41,6 +41,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var index_1 = __importDefault(require("../index"));
 var Signature_1 = __importDefault(require("./Signature"));
+// import { HttpMethod } from '../types/Misc';
 var CONTENT_TYPE = 'Content-Type';
 var ContentType = {
     Json: 'application/json',
@@ -55,12 +56,14 @@ var HttpMethod = {
 var NCMBRequest = /** @class */ (function () {
     function NCMBRequest() {
         this.date = null;
+        this.addHeaders = {};
+        this.script = false;
     }
     NCMBRequest.prototype.exec = function (method, url, signature, bodies, file) {
         if (bodies === void 0) { bodies = null; }
         if (file === void 0) { file = null; }
         return __awaiter(this, void 0, void 0, function () {
-            var body, headers;
+            var body, headers, key;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -68,6 +71,11 @@ var NCMBRequest = /** @class */ (function () {
                         headers = this.headers(signature);
                         if (!file) {
                             headers.set(CONTENT_TYPE, ContentType.Json);
+                        }
+                        if (Object.keys(this.addHeaders).length > 0) {
+                            for (key in this.addHeaders) {
+                                headers.set(key, this.addHeaders[key]);
+                            }
                         }
                         if (!body) return [3 /*break*/, 2];
                         return [4 /*yield*/, fetch(url, { method: method, headers: headers, body: body })];
@@ -94,7 +102,7 @@ var NCMBRequest = /** @class */ (function () {
     };
     NCMBRequest.prototype.url = function (path, queries) {
         if (queries === void 0) { queries = null; }
-        var url = "https://" + index_1.default.fqdn + path;
+        var url = "https://" + (this.script ? index_1.default.fqdn_script : index_1.default.fqdn) + path;
         if (queries == null)
             return url;
         var query = Object.keys(queries).map(function (k) {
@@ -113,6 +121,7 @@ var NCMBRequest = /** @class */ (function () {
             var s, method, signature;
             return __generator(this, function (_a) {
                 s = new Signature_1.default;
+                s.script = this.script;
                 method = HttpMethod.Post;
                 this.date = new Date();
                 signature = s.generate(method, path, this.date);
@@ -125,6 +134,7 @@ var NCMBRequest = /** @class */ (function () {
             var s, method, signature;
             return __generator(this, function (_a) {
                 s = new Signature_1.default;
+                s.script = this.script;
                 method = HttpMethod.Put;
                 this.date = new Date();
                 signature = s.generate(method, path, this.date);
@@ -132,21 +142,26 @@ var NCMBRequest = /** @class */ (function () {
             });
         });
     };
+    NCMBRequest.prototype.queries = function (queries) {
+        var filteredQuery = {};
+        for (var key in queries) {
+            if (queries[key] && queries[key] !== '') {
+                filteredQuery[key] = queries[key];
+            }
+        }
+        return filteredQuery;
+    };
     NCMBRequest.prototype.get = function (path, queries) {
         return __awaiter(this, void 0, void 0, function () {
-            var s, method, filteredQuery, key, signature;
+            var s, method, q, signature;
             return __generator(this, function (_a) {
                 s = new Signature_1.default;
+                s.script = this.script;
                 method = HttpMethod.Get;
                 this.date = new Date();
-                filteredQuery = {};
-                for (key in queries) {
-                    if (queries[key] && queries[key] !== '') {
-                        filteredQuery[key] = queries[key];
-                    }
-                }
-                signature = s.generate(method, path, this.date, filteredQuery);
-                return [2 /*return*/, this.exec(method, this.url(path, filteredQuery), signature)];
+                q = this.queries(queries);
+                signature = s.generate(method, path, this.date, q);
+                return [2 /*return*/, this.exec(method, this.url(path, q), signature)];
             });
         });
     };
@@ -155,6 +170,7 @@ var NCMBRequest = /** @class */ (function () {
             var s, method, signature;
             return __generator(this, function (_a) {
                 s = new Signature_1.default;
+                s.script = this.script;
                 method = HttpMethod.Delete;
                 this.date = new Date();
                 signature = s.generate(method, path, this.date);

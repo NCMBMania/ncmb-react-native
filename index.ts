@@ -10,6 +10,7 @@ import NCMBRelation from './libs/Relation';
 import NCMBGeoPoint from './libs/GeoPoint';
 import NCMBInstallation from './libs/Installation';
 import NCMBPush from './libs/Push';
+import NCMBScript from './libs/Script';
 
 import { NCMBStorage } from './types/Misc';
 
@@ -17,6 +18,7 @@ class NCMB {
   public applicationKey :string;
   public clientKey :string;
   static fqdn = 'mbaas.api.nifcloud.com';
+  static fqdn_script = 'script.mbaas.api.nifcloud.com';
   static version = '2013-09-01';
   static applicationKeyName = 'X-NCMB-Application-Key';
   static signatureMethodName = 'SignatureMethod';
@@ -42,6 +44,7 @@ class NCMB {
     NCMBSignature.ncmb = this;
     NCMBInstallation.ncmb = this;
     NCMBPush.ncmb = this;
+    NCMBScript.ncmb = this;
   }
 }
 
@@ -57,5 +60,6 @@ export {
   NCMBRelation,
   NCMBGeoPoint,
   NCMBInstallation,
-  NCMBPush
+  NCMBPush,
+  NCMBScript
 };
