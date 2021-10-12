@@ -7,6 +7,8 @@ var __extends = (this && this.__extends) || (function () {
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -90,36 +92,37 @@ var NCMBFile = /** @class */ (function (_super) {
                         r = new index_1.NCMBRequest;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 10, , 11]);
+                        _a.trys.push([1, 9, , 10]);
                         form = new form_data_1.default();
-                        if (!(fileData instanceof Buffer)) return [3 /*break*/, 2];
-                        contentType = contentType || 'application/octet-stream';
-                        form.append('file', fileData, { contentType: contentType });
-                        return [3 /*break*/, 7];
-                    case 2:
-                        if (!(typeof fileData === 'object' && fileData.uri.match(/^file:\/\//))) return [3 /*break*/, 3];
+                        if (!(typeof fileData === 'object' && fileData.uri && fileData.uri.match(/^file:\/\//))) return [3 /*break*/, 2];
                         form.append('file', fileData);
-                        return [3 /*break*/, 7];
-                    case 3:
-                        if (!(typeof fileData === 'object' && fileData.uri.match(/^data:/))) return [3 /*break*/, 6];
+                        return [3 /*break*/, 6];
+                    case 2:
+                        if (!(typeof fileData === 'object' && fileData.uri && fileData.uri.match(/^data:/))) return [3 /*break*/, 5];
                         return [4 /*yield*/, fetch(fileData.uri)];
-                    case 4:
+                    case 3:
                         file_1 = _a.sent();
                         return [4 /*yield*/, file_1.blob()];
-                    case 5:
+                    case 4:
                         blob = _a.sent();
                         form.append('file', blob);
-                        return [3 /*break*/, 7];
+                        return [3 /*break*/, 6];
+                    case 5:
+                        if (fileData instanceof Buffer) {
+                            contentType = contentType || 'application/octet-stream';
+                            form.append('file', fileData, { contentType: contentType });
+                        }
+                        else {
+                            form.append('file', fileData);
+                        }
+                        _a.label = 6;
                     case 6:
-                        form.append('file', fileData);
-                        _a.label = 7;
-                    case 7:
                         form.append('acl', JSON.stringify((acl || new index_1.NCMBAcl).toJSON()));
                         return [4 /*yield*/, r.post(NCMBFile.path(fileName), form)];
-                    case 8:
+                    case 7:
                         response = _a.sent();
                         return [4 /*yield*/, response.json()];
-                    case 9:
+                    case 8:
                         json = _a.sent();
                         if (json.code) {
                             // エラー
@@ -127,10 +130,10 @@ var NCMBFile = /** @class */ (function (_super) {
                         }
                         file = new NCMBFile;
                         return [2 /*return*/, file.sets(json)];
-                    case 10:
+                    case 9:
                         e_1 = _a.sent();
                         throw e_1;
-                    case 11: return [2 /*return*/];
+                    case 10: return [2 /*return*/];
                 }
             });
         });
@@ -163,7 +166,7 @@ var NCMBFile = /** @class */ (function (_super) {
                         switch (_a) {
                             case 'TEXT': return [3 /*break*/, 4];
                             case 'BINARY': return [3 /*break*/, 6];
-                            case 'DATAURL': return [3 /*break*/, 8];
+                            case 'DATAURI': return [3 /*break*/, 8];
                         }
                         return [3 /*break*/, 11];
                     case 4: return [4 /*yield*/, response.text()];

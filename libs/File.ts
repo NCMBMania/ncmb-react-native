@@ -17,15 +17,18 @@ class NCMBFile extends NCMBObject {
     const r = new NCMBRequest;
     try {
       const form = new FormData();
-      if (fileData instanceof Buffer) {
-        contentType = contentType || 'application/octet-stream';
-        form.append('file', fileData, { contentType });
-      } else if (typeof fileData === 'object' && fileData.uri.match(/^file:\/\//)) {
+      /* @ts-ignore */
+      if (typeof fileData === 'object' && fileData.uri && fileData.uri.match(/^file:\/\//)) {
         form.append('file', fileData);
-      } else if (typeof fileData === 'object' && fileData.uri.match(/^data:/)) {
+      /* @ts-ignore */
+      } else if (typeof fileData === 'object' && fileData.uri && fileData.uri.match(/^data:/)) {
+        /* @ts-ignore */
         const file = await fetch(fileData.uri);
         const blob = await file.blob();
         form.append('file', blob);
+      } else if (fileData instanceof Buffer) {
+        contentType = contentType || 'application/octet-stream';
+        form.append('file', fileData, { contentType });
       } else {
         form.append('file', fileData);
       }
@@ -60,7 +63,7 @@ class NCMBFile extends NCMBObject {
         return await response.text();
       case 'BINARY':
         return await response.blob();
-      case 'DATAURL':
+      case 'DATAURI':
         return await this.getDataUri(await response.blob());
     }
   }

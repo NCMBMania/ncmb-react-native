@@ -478,8 +478,14 @@ const download = await file.download();
 #### ファイルダウンロード（バイナリファイル）
 
 ```js
-const download = await file.download(true) as Blob;
+const download = await file.download('binary');
 download.type // -> eg. image/jpeg
+```
+
+#### ファイルダウンロード（DataURI）
+
+```js
+const download = await file.download('datauri');
 ```
 
 #### ファイル取得
